@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Admin - Mading Digital</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      background: #f5f3f0;
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      padding: 20px 24px;
+      border-radius: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .header .badge {
+      background: #ffd700;
+      color: #1a1a1a;
+      padding: 4px 14px;
+      border-radius: 40px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .header a {
+      color: #888;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Section */
+    .section {
+      background: white;
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+
+    .section h2 {
+      font-size: 18px;
+      margin-bottom: 14px;
+      color: #1a1a1a;
+    }
+
+    /* Whiteboard */
+    .canvas-wrapper {
+      background: #fafafa;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px dashed #ddd;
+    }
+
+    #whiteboardCanvas {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 4 / 3;
+      display: block;
+      touch-action: none;
+      cursor: crosshair;
+      background: white;
+    }
+
+    .canvas-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .canvas-tools button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 40px;
+      background: #f0f0f0;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      flex: 1;
+      min-width: 60px;
+    }
+
+    .canvas-tools button:active { transform: scale(0.95); }
+    .btn-primary { background: #1a1a1a !important; color: white !important; }
+    .btn-danger { background: #ff4d4d !important; color: white !important; }
+
+    /* Upload */
+    .upload-area {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .upload-area input[type="file"] {
+      padding: 12px;
+      border: 2px dashed #ddd;
+      border-radius: 16px;
+      background: #fafafa;
+      font-size: 14px;
+    }
+
+    .upload-area .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .upload-area .row input,
+    .upload-area .row textarea {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #eee;
+      border-radius: 14px;
+      font-size: 14px;
+      font-family: inherit;
+      min-width: 120px;
+    }
+
+    .upload-area .row textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    .upload-area .row button {
+      padding: 12px 24px;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .upload-area .row button:active { transform: scale(0.95); }
+
+    /* Gallery Admin */
+    .gallery-admin {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .admin-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid #eee;
+      transition: 0.2s;
+      position: relative;
+    }
+
+    .admin-card img {
+      width: 100%;
+      height: 130px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .admin-card .info {
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a1a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .admin-card .actions {
+      display: flex;
+      gap: 6px;
+      padding: 0 12px 12px;
+    }
+
+    .admin-card .actions button {
+      flex: 1;
+      padding: 6px;
+      border: none;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .admin-card .actions button:active { transform: scale(0.93); }
+    .btn-edit { background: #f0f0f0; color: #333; }
+    .btn-del { background: #ff4d4d; color: white; }
+
+    .empty-admin {
+      text-align: center;
+      color: #bbb;
+      padding: 30px 0;
+      grid-column: 1 / -1;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      color: white;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: 0.3s;
+      pointer-events: none;
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>🔐 Admin Panel</h1>
+      <span class="badge">✏️ Edit Mode</span>
+    </div>
+    <a href="index.html">👀 Lihat Mading</a>
+  </div>
+
+  <!-- Whiteboard -->
+  <div class="section">
+    <h2>✏️ Whiteboard (gambar bebas)</h2>
+    <div class="canvas-wrapper">
+      <canvas id="whiteboardCanvas" width="600" height="450"></canvas>
+    </div>
+    <div class="canvas-tools">
+      <button class="btn-primary" id="saveDrawingBtn">💾 Simpan ke Gallery</button>
+      <button class="btn-danger" id="clearCanvasBtn">🗑️ Hapus</button>
+      <button id="undoCanvasBtn">↩️ Undo</button>
+    </div>
+  </div>
+
+  <!-- Upload dengan Deskripsi -->
+  <div class="section">
+    <h2>📤 Upload + Deskripsi</h2>
+    <div class="upload-area">
+      <input type="file" id="imageInput" accept="image/*">
+      <div class="row">
+        <input type="text" id="captionInput" placeholder="Judul karya...">
+        <textarea id="descInput" placeholder="Deskripsi / narasi cerita..."></textarea>
+      </div>
+      <button id="uploadBtn">➕ Tambahkan ke Mading</button>
+    </div>
+  </div>
+
+  <!-- Gallery Admin -->
+  <div class="section">
+    <h2>📚 Daftar Karya (<span id="countLabel">0</span>)</h2>
+    <div id="galleryAdminContainer" class="gallery-admin">
+      <div class="empty-admin">Belum ada karya</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0;">
+    Data tersimpan di Local Storage HP kamu
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast">✨ Tersimpan!</div>
+
+<script>
+  // ========== DATA ==========
+  let galleryData = [];
+  let drawingHistory = [];
+  let isDrawing = false;
+  let lastX = 0, lastY = 0;
+
+  const canvas = document.getElementById('whiteboardCanvas');
+  const ctx = canvas.getContext('2d');
+  const toast = document.getElementById('toast');
+
+  // ========== LOAD ==========
+  function loadData() {
+    const stored = localStorage.getItem('portfolioData');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        galleryData = parsed.gallery || [];
+        if (parsed.drawing) {
+          const img = new Image();
+          img.onload = () => {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            drawingHistory = [canvas.toDataURL()];
+          };
+          img.src = parsed.drawing;
+        } else {
+          drawingHistory = [canvas.toDataURL()];
+        }
+      } catch(e) {
+        galleryData = [];
+        drawingHistory = [canvas.toDataURL()];
+      }
+    } else {
+      drawingHistory = [canvas.toDataURL()];
+    }
+    renderAdminGallery();
+    updateCount();
+  }
+
+  function saveData() {
+    const payload = {
+      gallery: galleryData,
+      drawing: canvas.toDataURL()
+    };
+    localStorage.setItem('portfolioData', JSON.stringify(payload));
+    showToast('💾 Data tersimpan!');
+    updateCount();
+  }
+
+  // ========== TOAST ==========
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  // ========== COUNT ==========
+  function updateCount() {
+    document.getElementById('countLabel').textContent = galleryData.length;
+  }
+
+  // ========== RENDER ADMIN GALLERY ==========
+  function renderAdminGallery() {
+    const container = document.getElementById('galleryAdminContainer');
+
+    if (galleryData.length === 0) {
+      container.innerHTML = `<div class="empty-admin">Belum ada karya</div>`;
+      return;
+    }
+
+    let html = '';
+    galleryData.forEach((item, index) => {
+      html += `
+        <div class="admin-card">
+          <img src="${item.src}" alt="${item.caption || 'Karya'}" loading="lazy">
+          <div class="info">${item.caption || 'Karya'}</div>
+          <div class="actions">
+            <button class="btn-edit" data-index="${index}">✏️ Edit</button>
+            <button class="btn-del" data-index="${index}">🗑️</button>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+
+    // Event delete
+    document.querySelectorAll('.btn-del').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(e.target.dataset.index);
+        if (confirm('Hapus karya ini?')) {
+          galleryData.splice(idx, 1);
+          renderAdminGallery();
+          saveData();
+          showToast('🗑️ Dihapus');
+        }
+      });
+    });
+
+    // Event edit
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const idx = parseInt(e.target.dataset.index);
+        const item = galleryData[idx];
+        const newCaption = prompt('Judul baru:', item.caption || '');
+        const newDesc = prompt('Deskripsi baru:', item.description || '');
+        if (newCaption !== null) item.caption = newCaption;
+        if (newDesc !== null) item.description = newDesc;
+        renderAdminGallery();
+        saveData();
+        showToast('✅ Diperbarui');
+      });
+    });
+  }
+
+  // ========== WHITEBOARD ==========
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    let clientX, clientY;
+    if (e.touches) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+      e.preventDefault();
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  }
+
+  function startDraw(e) {
+    e.preventDefault();
+    isDrawing = true;
+    const pos = getPos(e);
+    lastX = pos.x;
+    lastY = pos.y;
+  }
+
+  function draw(e) {
+    e.preventDefault();
+    if (!isDrawing) return;
+    const pos = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    lastX = pos.x;
+    lastY = pos.y;
+  }
+
+  function endDraw(e) {
+    e.preventDefault();
+    if (isDrawing) {
+      isDrawing = false;
+      drawingHistory.push(canvas.toDataURL());
+      if (drawingHistory.length > 30) drawingHistory.shift();
+      saveData();
+    }
+  }
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('mouseleave', endDraw);
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove', draw, { passive: false });
+  canvas.addEventListener('touchend', endDraw, { passive: false });
+
+  // Canvas tools
+  document.getElementById('clearCanvasBtn').addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawingHistory = [canvas.toDataURL()];
+    saveData();
+    showToast('🧹 Canvas dibersihkan');
+  });
+
+  document.getElementById('undoCanvasBtn').addEventListener('click', () => {
+    if (drawingHistory.length > 1) {
+      drawingHistory.pop();
+      const prev = drawingHistory[drawingHistory.length - 1];
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        saveData();
+        showToast('↩️ Undo');
+      };
+      img.src = prev;
+    } else {
+      showToast('⚠️ Tidak ada undo');
+    }
+  });
+
+  document.getElementById('saveDrawingBtn').addEventListener('click', () => {
+    const dataUrl = canvas.toDataURL();
+    const caption = prompt('Judul karya:', 'Gambar whiteboard');
+    const desc = prompt('Deskripsi / narasi:', '');
+    galleryData.push({
+      src: dataUrl,
+      caption: caption || 'Gambar whiteboard',
+      description: desc || ''
+    });
+    renderAdminGallery();
+    saveData();
+    showToast('✅ Gambar ditambahkan ke mading!');
+  });
+
+  // ========== UPLOAD ==========
+  document.getElementById('uploadBtn').addEventListener('click', () => {
+    const fileInput = document.getElementById('imageInput');
+    const caption = document.getElementById('captionInput').value.trim() || 'Karya';
+    const description = document.getElementById('descInput').value.trim();
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+      showToast('⚠️ Pilih gambar dulu');
+      return;
+    }
+
+    const file = fileInput.files[0];
+    if (!file.type.startsWith('image/')) {
+      showToast('⚠️ Bukan gambar');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      galleryData.push({
+        src: e.target.result,
+        caption: caption,
+        description: description || ''
+      });
+      renderAdminGallery();
+      saveData();
+      fileInput.value = '';
+      document.getElementById('captionInput').value = '';
+      document.getElementById('descInput').value = '';
+      showToast('✅ Karya ditambahkan!');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ========== INIT ==========
+  loadData();
+</script>
+</body>
+</html>
