@@ -4,43 +4,83 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🎨 Galeri Kreatif</title>
-  <!-- semua style tetap sama seperti asli -->
   <style>
     * { margin:0; padding:0; box-sizing:border-box; font-family:system-ui; }
-    body { background:#f8f6f2; padding:16px; }
+    body { background:#f5f3f0; padding:16px; }
     .container { max-width:700px; margin:0 auto; }
-    .header { text-align:center; padding:24px 0 16px; }
+
+    /* Header */
+    .header { text-align:center; padding:20px 0 10px; }
     .header h1 { font-size:32px; font-weight:800; }
-    .badge { background:#1a1a1a; color:#fff; padding:6px 16px; border-radius:40px; font-size:12px; display:inline-block; margin-top:8px; }
-    .room-selector { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:12px; }
-    .room-btn { padding:8px 20px; border-radius:40px; border:2px solid #ddd; background:#fff; font-weight:600; cursor:pointer; }
-    .room-btn.active { border-color:#1a1a1a; background:#1a1a1a; color:#fff; }
+    .badge { background:#1a1a1a; color:#fff; padding:6px 16px; border-radius:40px; font-size:12px; display:inline-block; margin-top:6px; }
+
+    /* Galeri */
     .gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:16px; margin-top:20px; }
-    .card { background:#fff; border-radius:20px; overflow:hidden; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
+    .card { background:#fff; border-radius:20px; overflow:hidden; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
     .card:active { transform:scale(0.97); }
     .card img { width:100%; height:170px; object-fit:cover; display:block; background:#eee; }
     .card .title { padding:12px 14px; font-weight:700; font-size:14px; }
     .empty { text-align:center; padding:60px 20px; color:#bbb; grid-column:1/-1; }
     .empty span { font-size:48px; display:block; margin-bottom:12px; }
     .loading { text-align:center; padding:40px; color:#999; grid-column:1/-1; }
-    .modal { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); display:none; justify-content:center; align-items:center; padding:20px; z-index:1000; }
+
+    /* Modal detail */
+    .modal { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); display:none; justify-content:center; align-items:center; padding:20px; z-index:1000; }
     .modal.active { display:flex; }
     .modal-box { background:#fff; border-radius:28px; max-width:480px; width:100%; max-height:90vh; overflow-y:auto; padding:0; }
-    .modal-box img { width:100%; height:auto; max-height:50vh; object-fit:contain; border-radius:28px 28px 0 0; }
+    .modal-box img { width:100%; height:auto; max-height:50vh; object-fit:contain; border-radius:28px 28px 0 0; background:#eee; }
     .modal-content { padding:24px; }
     .modal-content h2 { font-size:22px; margin-bottom:8px; }
     .modal-content .desc { background:#f5f3f0; padding:14px 16px; border-radius:14px; white-space:pre-wrap; }
     .modal-close { display:block; width:100%; padding:14px; margin-top:16px; background:#1a1a1a; color:#fff; border:none; border-radius:40px; font-weight:600; cursor:pointer; }
-    .footer { text-align:center; color:#ccc; margin-top:40px; font-size:13px; }
-    .footer a { color:#888; text-decoration:none; font-weight:600; }
+
+    /* Toast */
     .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:#fff; padding:12px 28px; border-radius:40px; font-size:14px; opacity:0; transition:0.3s; pointer-events:none; z-index:999; }
     .toast.show { opacity:1; }
 
-    .fab-suggest { position:fixed; top:16px; right:16px; z-index:900; background:#1a1a1a; color:#fff; border:none; border-radius:40px; padding:10px 16px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
-    .fab-suggest:active { transform:scale(0.95); }
-    .fab-follow { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:900; background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; border:none; border-radius:40px; padding:10px 18px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.25); text-decoration:none; display:inline-block; }
-    .fab-follow:active { transform:translateX(-50%) scale(0.95); }
+    /* Toggle admin */
+    .admin-toggle { background:none; border:none; color:#888; font-weight:600; cursor:pointer; font-size:13px; }
 
+    /* Panel admin (tersembunyi) */
+    #adminPanel { display:none; margin-top:40px; border-top:2px solid #ddd; padding-top:30px; }
+    #adminPanel.active { display:block; }
+
+    /* Gaya admin */
+    .section { background:#fff; border-radius:24px; padding:20px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+    .section h2 { font-size:18px; margin-bottom:14px; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; }
+    .row input, .row textarea { flex:1; padding:12px 16px; border:2px solid #eee; border-radius:14px; font-size:14px; font-family:inherit; min-width:120px; }
+    .row textarea { min-height:60px; resize:vertical; }
+    .btn { padding:12px 24px; border:none; border-radius:40px; font-weight:600; cursor:pointer; background:#1a1a1a; color:#fff; }
+    .btn:active { transform:scale(0.95); }
+    .btn-success { background:#34c759; }
+    .btn-danger { background:#ff4d4d; }
+    .btn-secondary { background:#f0f0f0; color:#333; }
+    .canvas-wrapper { background:#fafafa; border-radius:16px; overflow:hidden; border:2px dashed #ddd; margin-top:8px; }
+    #whiteboardCanvas { width:100%; height:auto; aspect-ratio:4/3; display:block; touch-action:none; cursor:crosshair; background:white; }
+    .canvas-tools { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .canvas-tools button { padding:10px 16px; border:none; border-radius:40px; font-weight:600; cursor:pointer; flex:1; min-width:60px; }
+    .canvas-tools button:active { transform:scale(0.95); }
+    .upload-area { display:flex; flex-direction:column; gap:10px; }
+    .upload-area input[type="file"] { padding:12px; border:2px dashed #ddd; border-radius:16px; background:#fafafa; }
+    .gallery-admin { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-top:16px; }
+    .admin-card { background:#fff; border-radius:16px; overflow:hidden; border:2px solid #eee; }
+    .admin-card img { width:100%; height:130px; object-fit:cover; display:block; }
+    .admin-card .info { padding:10px 12px; font-weight:600; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .admin-card .actions { display:flex; gap:6px; padding:0 12px 12px; }
+    .admin-card .actions button { flex:1; padding:6px; border:none; border-radius:30px; font-size:12px; font-weight:600; cursor:pointer; }
+    .btn-edit { background:#f0f0f0; }
+    .btn-del { background:#ff4d4d; color:#fff; }
+    .empty-admin { text-align:center; color:#bbb; padding:30px 0; grid-column:1/-1; }
+    .color-row { display:flex; gap:8px; align-items:center; margin-top:10px; }
+    .color-row input[type="color"] { width:40px; height:36px; border:none; border-radius:10px; padding:0; }
+    .color-row input[type="range"] { flex:1; }
+    .progress-bar { width:100%; height:6px; background:#eee; border-radius:4px; margin-top:8px; overflow:hidden; display:none; }
+    .progress-bar .fill { height:100%; background:#34c759; width:0%; transition:width 0.3s; }
+
+    /* FAB saran (opsional) */
+    .fab-suggest { position:fixed; top:16px; right:16px; z-index:900; background:#1a1a1a; color:#fff; border:none; border-radius:40px; padding:10px 16px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+    .fab-suggest:active { transform:scale(0.95); }
     .popup-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); display:none; justify-content:center; align-items:center; padding:20px; z-index:2000; }
     .popup-overlay.active { display:flex; }
     .popup-box { background:#fff; border-radius:24px; max-width:420px; width:100%; padding:24px; max-height:90vh; overflow-y:auto; position:relative; }
@@ -48,94 +88,87 @@
     .popup-box textarea { width:100%; min-height:100px; padding:12px 14px; border:2px solid #eee; border-radius:14px; font-family:inherit; font-size:14px; resize:vertical; }
     .popup-box .btn { width:100%; margin-top:12px; padding:12px; border:none; border-radius:40px; background:#1a1a1a; color:#fff; font-weight:700; cursor:pointer; }
     .popup-close-x { position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; cursor:pointer; color:#999; }
-
-    .ad-section { border-top:1px solid #eee; margin-top:16px; padding-top:16px; }
-    .ad-section:first-child { border-top:none; margin-top:0; padding-top:0; }
-    .ad-follow-btn { display:block; text-align:center; background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; padding:12px; border-radius:40px; font-weight:700; text-decoration:none; margin-top:10px; }
-    .ad-donate-box { background:#f5f3f0; border-radius:14px; padding:14px 16px; margin-top:10px; font-size:14px; }
-
-    .admin-toggle { background:none; border:none; color:#888; font-weight:600; cursor:pointer; font-size:13px; }
-    .card { position:relative; }
-    .card .admin-actions { display:none; position:absolute; top:8px; right:8px; gap:6px; z-index:10; }
-    body.admin-mode .card .admin-actions { display:flex; }
-    .card .admin-actions button { border:none; border-radius:30px; padding:6px 10px; font-size:12px; font-weight:700; cursor:pointer; }
-    .card .admin-actions .a-edit { background:#fff; }
-    .card .admin-actions .a-del { background:#ff4d4d; color:#fff; }
   </style>
 </head>
 <body>
+
 <div class="container">
+  <!-- HEADER -->
   <div class="header">
     <h1>🎨 Galeri Kreatif</h1>
-    <p>Lihat karya dari berbagai ruang</p>
-    <div class="badge">🔥 Firebase • Server</div>
-    <div class="room-selector" id="roomSelector"></div>
+    <p>Lihat & bagikan karya</p>
+    <div class="badge">🔥 Firebase</div>
   </div>
+
+  <!-- GALERI PUBLIK -->
   <div id="gallery" class="gallery"><div class="loading">⏳ Memuat...</div></div>
-  <div class="footer"><button class="admin-toggle" id="adminToggleBtn">🔐 Mode Admin</button> · <a href="admin.html">Buka Panel Admin</a></div>
-</div>
 
-<button class="fab-suggest" id="openSuggestBtn">💬 Kotak Saran</button>
-<a class="fab-follow" href="https://www.instagram.com/yudisbulkdesain" target="_blank" rel="noopener">❤️ Follow @yudisbulkdesain</a>
+  <!-- FOOTER -->
+  <div style="text-align:center; margin-top:40px; font-size:13px; color:#ccc;">
+    <button class="admin-toggle" id="adminToggleBtn">🔐 Mode Admin</button>
+  </div>
 
-<div class="popup-overlay" id="suggestOverlay">
-  <div class="popup-box">
-    <button class="popup-close-x" id="closeSuggest">✕</button>
-    <h3>💬 Kotak Saran</h3>
-    <p style="color:#888;font-size:13px;margin-bottom:10px;">Punya saran untuk web ini? Tulis di sini.</p>
-    <textarea id="suggestText" placeholder="Tulis saranmu..."></textarea>
-    <button class="btn popup-btn" id="sendSuggestBtn">Kirim Saran</button>
+  <!-- PANEL ADMIN -->
+  <div id="adminPanel">
+    <!-- Upload File -->
+    <div class="section">
+      <h2>📤 Upload Gambar</h2>
+      <div class="upload-area">
+        <input type="file" id="imageInput" accept="image/*">
+        <div class="row">
+          <input type="text" id="captionInput" placeholder="Judul">
+          <textarea id="descInput" placeholder="Deskripsi"></textarea>
+        </div>
+        <button class="btn" id="uploadFileBtn">➕ Tambah</button>
+        <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
+      </div>
+    </div>
+
+    <!-- Whiteboard -->
+    <div class="section">
+      <h2>✏️ Whiteboard</h2>
+      <div class="canvas-wrapper">
+        <canvas id="whiteboardCanvas" width="600" height="450"></canvas>
+      </div>
+      <div class="color-row">
+        <input type="color" id="brushColor" value="#1a1a1a">
+        <input type="range" id="brushSize" min="1" max="30" value="4">
+      </div>
+      <div class="canvas-tools">
+        <button class="btn-success" id="saveDrawingBtn">💾 Simpan</button>
+        <button class="btn-danger" id="clearCanvasBtn">🗑️ Hapus</button>
+        <button class="btn-secondary" id="undoCanvasBtn">↩️ Undo</button>
+      </div>
+    </div>
+
+    <!-- Daftar Karya (admin) -->
+    <div class="section">
+      <h2>📚 Daftar Karya (<span id="count">0</span>)</h2>
+      <div id="adminGallery" class="gallery-admin"><div class="empty-admin">Belum ada</div></div>
+    </div>
   </div>
 </div>
 
-<div class="popup-overlay" id="adOverlay">
-  <div class="popup-box">
-    <button class="popup-close-x" id="closeAd">✕</button>
-    <div class="ad-section">
-      <h3>👋 Halo!</h3>
-      <p style="font-size:14px;color:#555;">Suka sama galeri ini? Yuk mampir & follow untuk lihat karya kreatif lainnya.</p>
-      <a class="ad-follow-btn" href="https://www.instagram.com/yudisbulkdesain" target="_blank" rel="noopener">❤️ Follow @yudisbulkdesain</a>
-    </div>
-    <div class="ad-section">
-      <h3 style="font-size:15px;">🛠️ Butuh Web Serupa?</h3>
-      <p style="font-size:13px;color:#555;">Punya ide pengembangan web sekolah/komunitas? Kirim saran fiturmu lewat Kotak Saran di pojok kanan atas.</p>
-    </div>
-    <div class="ad-section">
-      <h3 style="font-size:15px;">☕ Traktir Admin</h3>
-      <div class="ad-donate-box">Kalau web ini membantu, boleh banget traktir admin <b>Rp3.500</b> lewat e-wallet (DANA/OVO/GoPay). Fitur pembayaran online menyusul ya 🙏</div>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="detailModal">
-  <div class="modal-box">
-    <img id="modalImage" src="">
-    <div class="modal-content">
-      <h2 id="modalTitle">Judul</h2>
-      <div class="desc" id="modalDesc">Deskripsi</div>
-      <button class="modal-close" id="closeModal">Tutup</button>
-    </div>
-  </div>
-</div>
-
+<!-- Toast -->
 <div id="toast" class="toast">✅</div>
 
-<!-- IMPORTMAP DIPERBAIKI -->
+<!-- Importmap (diperbaiki) -->
 <script type="importmap">
 {
   "imports": {
     "firebase/app": "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js"
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js",
+    "firebase/storage": "https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js"
   }
 }
 </script>
 
 <script type="module">
   import { initializeApp } from "firebase/app";
-  import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
+  import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
+  import { getStorage, ref, uploadString, getDownloadURL } from "firebase/storage";
 
-  console.log('🚀 Index module dimulai');
-
+  // ===== KONFIGURASI FIREBASE =====
   const firebaseConfig = {
     apiKey: "AIzaSyCrhghmAhtTijVNLKw5izsa-7TVCRzd2L4",
     authDomain: "galeri-kreatif.firebaseapp.com",
@@ -144,102 +177,52 @@
     messagingSenderId: "436229179023",
     appId: "1:436229179023:web:78445a449aaf18d30252fa"
   };
-
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  console.log('✅ Firebase initialized');
+  const storage = getStorage(app);
+  console.log('✅ Firebase siap');
 
-  let allRooms = [];
-  let currentRoom = null;
-  let unsubscribe = null;
-
+  // ===== ELEMEN =====
   const galleryEl = document.getElementById('gallery');
-  const roomSelector = document.getElementById('roomSelector');
-  const modal = document.getElementById('detailModal');
-  const modalImg = document.getElementById('modalImage');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalDesc = document.getElementById('modalDesc');
-  const closeModal = document.getElementById('closeModal');
+  const adminPanel = document.getElementById('adminPanel');
+  const adminToggleBtn = document.getElementById('adminToggleBtn');
   const toast = document.getElementById('toast');
 
+  // ===== TOAST =====
+  let toastTimer;
   function showToast(msg) {
-    console.log('📢 Toast:', msg);
     toast.textContent = msg;
     toast.classList.add('show');
-    clearTimeout(toast._timer);
-    toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
-  async function loadRooms() {
-    console.log('📂 Memuat daftar ruang...');
-    try {
-      const snapshot = await getDocs(collection(db, 'rooms'));
-      allRooms = [];
-      snapshot.forEach(doc => allRooms.push({ id: doc.id, ...doc.data() }));
-      console.log(`✅ ${allRooms.length} ruang dimuat`);
-      renderRoomSelector();
-      if (allRooms.length > 0) {
-        currentRoom = allRooms[0].id;
-        listenRoom(currentRoom);
-        document.querySelectorAll('.room-btn').forEach((btn, idx) => {
-          if (idx === 0) btn.classList.add('active');
-        });
-      } else {
-        galleryEl.innerHTML = `<div class="empty"><span>🏠</span>Belum ada ruang</div>`;
-      }
-    } catch (error) {
-      console.error('❌ Gagal memuat ruang:', error);
-      galleryEl.innerHTML = `<div class="empty"><span>⚠️</span>${error.message}</div>`;
-      showToast('⚠️ Gagal memuat ruang: ' + error.message);
-    }
-  }
+  // ===== STATE =====
+  let adminActive = false;
+  let allKarya = [];        // data dari Firebase
+  let unsubscribe = null;
 
-  function renderRoomSelector() {
-    if (allRooms.length === 0) {
-      roomSelector.innerHTML = `<span style="color:#999;">Belum ada ruang</span>`;
-      return;
-    }
-    let html = '';
-    allRooms.forEach(room => {
-      const active = room.id === currentRoom ? 'active' : '';
-      html += `<button class="room-btn ${active}" data-room="${room.id}">${room.name || room.id}</button>`;
-    });
-    roomSelector.innerHTML = html;
-    document.querySelectorAll('.room-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const roomId = btn.dataset.room;
-        console.log('🔄 Pindah ke ruang:', roomId);
-        currentRoom = roomId;
-        listenRoom(roomId);
-        document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-      });
-    });
-  }
+  // ===== GALERI PUBLIK (Realtime) =====
+  function listenKarya() {
+    console.log('👂 Mendengarkan koleksi karya...');
+    if (unsubscribe) unsubscribe();
 
-  function listenRoom(roomId) {
-    console.log('👂 Mendengarkan ruang:', roomId);
-    if (unsubscribe) {
-      unsubscribe();
-      unsubscribe = null;
-    }
-    const q = query(collection(db, 'rooms', roomId, 'karya'), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, 'karya'), orderBy('createdAt', 'desc'));
     unsubscribe = onSnapshot(q, (snapshot) => {
       const data = [];
       snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
-      console.log(`📦 ${data.length} karya diterima dari ${roomId}`);
-      renderGallery(data, roomId);
+      allKarya = data;
+      renderGallery(data);
+      renderAdminGallery(data);
+      document.getElementById('count').textContent = data.length;
     }, (error) => {
       console.error('❌ Error snapshot:', error);
       galleryEl.innerHTML = `<div class="empty"><span>⚠️</span>${error.message}</div>`;
-      showToast('⚠️ Error: ' + error.message);
     });
   }
 
-  function renderGallery(data, roomId) {
-    const room = allRooms.find(r => r.id === roomId);
-    const roomName = room ? room.name : roomId;
-    if (!data || data.length === 0) {
+  function renderGallery(data) {
+    if (data.length === 0) {
       galleryEl.innerHTML = `<div class="empty"><span>🖼️</span>Belum ada karya</div>`;
       return;
     }
@@ -247,121 +230,266 @@
     data.forEach((item, i) => {
       html += `
         <div class="card" data-index="${i}">
-          <div class="admin-actions">
-            <button class="a-edit" data-index="${i}">✏️</button>
-            <button class="a-del" data-index="${i}">🗑️</button>
-          </div>
           <img src="${item.src}" alt="${item.caption}" loading="lazy">
           <div class="title">${item.caption || 'Karya'}</div>
         </div>
       `;
     });
     galleryEl.innerHTML = html;
-    document.querySelectorAll('.card').forEach((card) => {
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('.admin-actions')) return;
+
+    // Klik untuk detail
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', () => {
         const idx = parseInt(card.dataset.index);
         const item = data[idx];
-        modalImg.src = item.src;
-        modalTitle.textContent = item.caption || 'Karya';
-        modalDesc.textContent = item.description || 'Tidak ada deskripsi.';
-        modal.classList.add('active');
-      });
-    });
-    document.querySelectorAll('.a-edit').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const idx = parseInt(btn.dataset.index);
-        const item = data[idx];
-        const newCaption = prompt('Judul baru:', item.caption || '');
-        if (newCaption === null) return;
-        const newDesc = prompt('Deskripsi baru (bisa tempel link gambar):', item.description || '');
-        try {
-          await updateDoc(doc(db, 'rooms', roomId, 'karya', item.id), { caption: newCaption, description: newDesc || '' });
-          showToast('✅ Karya diperbarui');
-        } catch (error) {
-          showToast('⚠️ Gagal update: ' + error.message);
-        }
-      });
-    });
-    document.querySelectorAll('.a-del').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const idx = parseInt(btn.dataset.index);
-        const item = data[idx];
-        if (!confirm('Hapus karya ini?')) return;
-        try {
-          await deleteDoc(doc(db, 'rooms', roomId, 'karya', item.id));
-          showToast('🗑️ Karya dihapus');
-        } catch (error) {
-          showToast('⚠️ Gagal hapus: ' + error.message);
-        }
+        showDetail(item);
       });
     });
   }
 
-  closeModal.addEventListener('click', () => modal.classList.remove('active'));
-  modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
-
-  const ADMIN_PASSWORD = 'admin234';
-  const adminToggleBtn = document.getElementById('adminToggleBtn');
-  function applyAdminUI() {
-    const on = sessionStorage.getItem('adminMode') === '1';
-    document.body.classList.toggle('admin-mode', on);
-    adminToggleBtn.textContent = on ? '🔓 Keluar Mode Admin' : '🔐 Mode Admin';
+  // ===== MODAL DETAIL =====
+  function showDetail(item) {
+    // Buat modal secara dinamis (ringkas)
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.innerHTML = `
+      <div class="modal-box">
+        <img src="${item.src}" alt="${item.caption}">
+        <div class="modal-content">
+          <h2>${item.caption || 'Karya'}</h2>
+          <div class="desc">${item.description || 'Tidak ada deskripsi.'}</div>
+          <button class="modal-close">Tutup</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    modal.querySelector('.modal-close').addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
   }
+
+  // ===== ADMIN TOGGLE =====
   adminToggleBtn.addEventListener('click', () => {
-    if (sessionStorage.getItem('adminMode') === '1') {
-      sessionStorage.removeItem('adminMode');
-      applyAdminUI();
+    adminActive = !adminActive;
+    adminPanel.classList.toggle('active', adminActive);
+    adminToggleBtn.textContent = adminActive ? '🔓 Keluar Mode Admin' : '🔐 Mode Admin';
+    if (adminActive) {
+      // Jika admin aktif, muat ulang data (sudah via listener)
+      showToast('✅ Mode admin aktif');
+      initCanvas();
+    } else {
       showToast('Mode admin nonaktif');
+    }
+  });
+
+  // ===== UPLOAD GAMBAR (file) =====
+  async function uploadToStorage(base64) {
+    const path = `karya/${Date.now()}_${Math.random().toString(36).slice(2)}.png`;
+    const refStorage = ref(storage, path);
+    await uploadString(refStorage, base64, 'data_url');
+    return await getDownloadURL(refStorage);
+  }
+
+  document.getElementById('uploadFileBtn').addEventListener('click', async () => {
+    const fileInput = document.getElementById('imageInput');
+    const caption = document.getElementById('captionInput').value.trim() || 'Karya';
+    const description = document.getElementById('descInput').value.trim();
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+      showToast('⚠️ Pilih gambar');
       return;
     }
-    const pass = prompt('Masukkan password admin:');
-    if (pass === ADMIN_PASSWORD) {
-      sessionStorage.setItem('adminMode', '1');
-      applyAdminUI();
-      showToast('✅ Mode admin aktif');
-    } else if (pass !== null) {
-      showToast('⚠️ Password salah');
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        showToast('⏳ Upload...');
+        const url = await uploadToStorage(e.target.result);
+        await addDoc(collection(db, 'karya'), {
+          src: url,
+          caption,
+          description: description || '',
+          createdAt: new Date()
+        });
+        fileInput.value = '';
+        document.getElementById('captionInput').value = '';
+        document.getElementById('descInput').value = '';
+        showToast('✅ Berhasil ditambahkan!');
+      } catch (err) {
+        showToast('⚠️ Gagal: ' + err.message);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ===== WHITEBOARD =====
+  const canvas = document.getElementById('whiteboardCanvas');
+  const ctx = canvas.getContext('2d');
+  let drawingHistory = [];
+  let isDrawing = false;
+  let lastX = 0, lastY = 0;
+
+  function initCanvas() {
+    drawingHistory = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    let cx, cy;
+    if (e.touches) {
+      cx = e.touches[0].clientX;
+      cy = e.touches[0].clientY;
+      e.preventDefault();
+    } else {
+      cx = e.clientX;
+      cy = e.clientY;
+    }
+    return { x: (cx - rect.left) * scaleX, y: (cy - rect.top) * scaleY };
+  }
+
+  function startDraw(e) {
+    e.preventDefault();
+    isDrawing = true;
+    const pos = getPos(e);
+    lastX = pos.x;
+    lastY = pos.y;
+  }
+
+  function draw(e) {
+    e.preventDefault();
+    if (!isDrawing) return;
+    const pos = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.strokeStyle = document.getElementById('brushColor').value;
+    ctx.lineWidth = document.getElementById('brushSize').value;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    lastX = pos.x;
+    lastY = pos.y;
+  }
+
+  function endDraw(e) {
+    e.preventDefault();
+    if (isDrawing) {
+      isDrawing = false;
+      drawingHistory.push(canvas.toDataURL());
+      if (drawingHistory.length > 30) drawingHistory.shift();
+    }
+  }
+
+  canvas.addEventListener('pointerdown', (e) => { canvas.setPointerCapture(e.pointerId); startDraw(e); });
+  canvas.addEventListener('pointermove', draw);
+  canvas.addEventListener('pointerup', endDraw);
+  canvas.addEventListener('pointercancel', endDraw);
+
+  document.getElementById('clearCanvasBtn').addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawingHistory = [canvas.toDataURL()];
+    showToast('🧹 Dibersihkan');
+  });
+
+  document.getElementById('undoCanvasBtn').addEventListener('click', () => {
+    if (drawingHistory.length > 1) {
+      drawingHistory.pop();
+      const prev = drawingHistory[drawingHistory.length - 1];
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        showToast('↩️ Undo');
+      };
+      img.src = prev;
+    } else {
+      showToast('⚠️ Tidak ada undo');
     }
   });
-  applyAdminUI();
 
-  const suggestOverlay = document.getElementById('suggestOverlay');
-  document.getElementById('openSuggestBtn').addEventListener('click', () => suggestOverlay.classList.add('active'));
-  document.getElementById('closeSuggest').addEventListener('click', () => suggestOverlay.classList.remove('active'));
-  suggestOverlay.addEventListener('click', (e) => { if (e.target === suggestOverlay) suggestOverlay.classList.remove('active'); });
-  document.getElementById('sendSuggestBtn').addEventListener('click', async () => {
-    const text = document.getElementById('suggestText').value.trim();
-    if (!text) { showToast('⚠️ Tulis saran dulu'); return; }
+  // Simpan drawing
+  document.getElementById('saveDrawingBtn').addEventListener('click', async () => {
+    const dataUrl = canvas.toDataURL();
+    const caption = prompt('Judul:', 'Gambar whiteboard');
+    if (caption === null) return;
+    const desc = prompt('Deskripsi:', '');
     try {
-      await addDoc(collection(db, 'suggestions'), { text, createdAt: new Date(), read: false });
-      document.getElementById('suggestText').value = '';
-      suggestOverlay.classList.remove('active');
-      showToast('✅ Saran terkirim, makasih!');
-    } catch (error) {
-      showToast('⚠️ Gagal kirim: ' + error.message);
+      showToast('⏳ Upload...');
+      const url = await uploadToStorage(dataUrl);
+      await addDoc(collection(db, 'karya'), {
+        src: url,
+        caption,
+        description: desc || '',
+        createdAt: new Date()
+      });
+      showToast('✅ Berhasil ditambahkan!');
+    } catch (err) {
+      showToast('⚠️ Gagal: ' + err.message);
     }
   });
 
-  const adOverlay = document.getElementById('adOverlay');
-  document.getElementById('closeAd').addEventListener('click', () => adOverlay.classList.remove('active'));
-  adOverlay.addEventListener('click', (e) => { if (e.target === adOverlay) adOverlay.classList.remove('active'); });
-  if (!sessionStorage.getItem('adShown')) {
-    setTimeout(() => {
-      adOverlay.classList.add('active');
-      sessionStorage.setItem('adShown', '1');
-    }, 1800);
+  // ===== ADMIN GALLERY (edit & hapus) =====
+  function renderAdminGallery(data) {
+    const container = document.getElementById('adminGallery');
+    if (data.length === 0) {
+      container.innerHTML = `<div class="empty-admin">Belum ada karya</div>`;
+      return;
+    }
+    let html = '';
+    data.forEach((item, idx) => {
+      html += `
+        <div class="admin-card">
+          <img src="${item.src}" alt="${item.caption}" loading="lazy">
+          <div class="info">${item.caption || 'Karya'}</div>
+          <div class="actions">
+            <button class="btn-edit" data-id="${item.id}">✏️</button>
+            <button class="btn-del" data-id="${item.id}">🗑️</button>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+
+    // Edit
+    container.querySelectorAll('.btn-edit').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        const item = data.find(d => d.id === id);
+        if (!item) return;
+        const newCap = prompt('Judul baru:', item.caption || '');
+        if (newCap === null) return;
+        const newDesc = prompt('Deskripsi baru:', item.description || '');
+        try {
+          await updateDoc(doc(db, 'karya', id), { caption: newCap, description: newDesc || '' });
+          showToast('✅ Diperbarui');
+        } catch (err) {
+          showToast('⚠️ Gagal update: ' + err.message);
+        }
+      });
+    });
+
+    // Hapus
+    container.querySelectorAll('.btn-del').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Hapus karya ini?')) return;
+        const id = btn.dataset.id;
+        try {
+          await deleteDoc(doc(db, 'karya', id));
+          showToast('🗑️ Dihapus');
+        } catch (err) {
+          showToast('⚠️ Gagal hapus: ' + err.message);
+        }
+      });
+    });
   }
 
-  try {
-    await loadRooms();
-    console.log('🏁 Index siap');
-  } catch (error) {
-    console.error('❌ Error startup:', error);
-    galleryEl.innerHTML = `<div class="empty"><span>⚠️</span>${error.message}</div>`;
-  }
+  // ===== START =====
+  listenKarya();
+  console.log('🏁 Aplikasi siap');
+
+  // Opsional: FAB saran (bisa ditambahkan jika mau)
 </script>
 </body>
 </html>
