@@ -22,7 +22,7 @@
     .btn-primary { background:#1a1a1a !important; color:white !important; }
     .btn-danger { background:#ff4d4d !important; color:white !important; }
     .upload-area { display:flex; flex-direction:column; gap:10px; }
-    .upload-area input[type="file"] { padding:12px; border:2px dashed #ddd; border-radius:16px; background:#fafafa; font-size:14px; }
+    .upload-area input[type="file"] { padding:12px; border:2px dashed #ddd; border-radius:16px; background:#fafafa; font-size:14px; color: #333; }
     .upload-area .row { display:flex; gap:10px; flex-wrap:wrap; }
     .upload-area .row input, .upload-area .row textarea { flex:1; padding:12px 16px; border:2px solid #eee; border-radius:14px; font-size:14px; font-family:inherit; min-width:120px; }
     .upload-area .row textarea { min-height:60px; resize:vertical; }
@@ -41,7 +41,7 @@
     .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:white; padding:12px 28px; border-radius:40px; font-size:14px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.2); opacity:0; transition:0.3s; pointer-events:none; z-index:999; white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    /* ===== MODAL PROFESIONAL UNTUK INPUT JUDUL & DESKRIPSI ===== */
+    /* ===== MODAL CANTIK (PUTIH, BERSIH, MODERN) ===== */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.7);
       backdrop-filter: blur(8px); display: none;
@@ -75,6 +75,7 @@
       border: 2px solid #eee; border-radius: 14px;
       font-size: 15px; font-family: inherit;
       transition: border 0.2s; background: #fafafa;
+      color: #1a1a1a; /* Pastikan teks hitam, bukan abu */
     }
     .modal-box input:focus, .modal-box textarea:focus {
       border-color: #1a1a1a; outline: none; background: #fff;
@@ -134,7 +135,7 @@
 
 <div id="toast" class="toast">✨ Tersimpan!</div>
 
-<!-- ===== MODAL PROFESIONAL ===== -->
+<!-- ===== MODAL PUTIH BERSIH ===== -->
 <div class="modal-overlay" id="detailModal">
   <div class="modal-box">
     <h3 id="modalHeader">📝 Detail Karya</h3>
@@ -337,7 +338,7 @@
   const modalDesc = document.getElementById('modalDesc');
   const modalSaveBtn = document.getElementById('modalSaveBtn');
   const modalCancelBtn = document.getElementById('modalCancelBtn');
-  let pendingModalAction = null; // 'save_drawing', 'upload_file', 'edit_item'
+  let pendingModalAction = null;
 
   function openModal(defaultCaption, defaultDesc, action, editingId = null) {
     modalCaption.value = defaultCaption || '';
@@ -364,7 +365,6 @@
     const { action, editingId } = pendingModalAction;
 
     if (action === 'save_drawing') {
-      // Simpan gambar whiteboard
       const dataUrl = canvas.toDataURL();
       try {
         const response = await fetch(dataUrl);
@@ -375,7 +375,6 @@
       } catch (err) { showToast('⚠️ Gagal: ' + err.message); }
     } 
     else if (action === 'upload_file') {
-      // Simpan file upload (data sudah disiapkan di variabel global)
       if (!window.pendingUploadBlob) return;
       try {
         await addKarya(window.pendingUploadBlob, finalCaption, finalDesc);
@@ -395,12 +394,12 @@
     closeModal();
   });
 
-  // ========== SAVE WHITEBOARD (panggil modal) ==========
+  // ========== SAVE WHITEBOARD ==========
   document.getElementById('saveDrawingBtn').addEventListener('click', () => {
     openModal('Gambar whiteboard', '', 'save_drawing');
   });
 
-  // ========== UPLOAD FILE (panggil modal) ==========
+  // ========== UPLOAD FILE ==========
   document.getElementById('uploadBtn').addEventListener('click', async () => {
     const fileInput = document.getElementById('imageInput');
     if (!fileInput.files || fileInput.files.length === 0) {
@@ -412,10 +411,11 @@
       showToast('⚠️ Bukan gambar');
       return;
     }
-    // Simpan blob file ke variabel sementara
     window.pendingUploadBlob = file;
     openModal('Karya', '', 'upload_file');
     fileInput.value = '';
+    document.getElementById('captionInput').value = '';
+    document.getElementById('descInput').value = '';
   });
 
   // ========== RENDER ADMIN GALLERY ==========
@@ -459,7 +459,6 @@
         const data = await getAllKarya();
         const item = data.find(d => d.id === id);
         if (!item) return;
-        // Buka modal edit
         openModal(item.caption, item.description, 'edit_item', id);
       });
     });
