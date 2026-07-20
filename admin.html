@@ -2,378 +2,353 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Galeri Kreatif</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Admin - Mading Digital</title>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:system-ui; }
-    body { background:#f5f3f0; padding:16px; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', system-ui, sans-serif; }
+    body { background:#f5f3f0; padding:16px; min-height:100vh; }
     .container { max-width:700px; margin:0 auto; }
-    .header { background:#fff; padding:20px 24px; border-radius:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
-    .header h1 { font-size:24px; }
-    .header a { color:#888; text-decoration:none; font-weight:600; }
-    .section { background:#fff; border-radius:24px; padding:20px; margin-bottom:20px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
-    .section h2 { font-size:18px; margin-bottom:14px; }
-    .row { display:flex; gap:10px; flex-wrap:wrap; }
-    .row input, .row textarea { flex:1; padding:12px 16px; border:2px solid #eee; border-radius:14px; font-size:14px; font-family:inherit; min-width:120px; }
-    .row textarea { min-height:60px; resize:vertical; }
-    .btn { padding:12px 24px; border:none; border-radius:40px; font-weight:600; cursor:pointer; background:#1a1a1a; color:#fff; }
-    .btn:active { transform:scale(0.95); }
-    .btn-success { background:#34c759; }
-    .btn-danger { background:#ff4d4d; }
-    .btn-secondary { background:#f0f0f0; color:#333; }
-    .canvas-wrapper { background:#fafafa; border-radius:16px; overflow:hidden; border:2px dashed #ddd; margin-top:8px; }
-    #whiteboardCanvas { width:100%; height:auto; aspect-ratio:4/3; display:block; touch-action:none; cursor:crosshair; background:white; }
-    .canvas-tools { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-    .canvas-tools button { padding:10px 16px; border:none; border-radius:40px; font-weight:600; cursor:pointer; flex:1; min-width:60px; }
+    .header { background:white; padding:20px 24px; border-radius:24px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+    .header h1 { font-size:24px; font-weight:700; color:#1a1a1a; }
+    .header .badge { background:#ffd700; color:#1a1a1a; padding:4px 14px; border-radius:40px; font-size:12px; font-weight:700; }
+    .header a { color:#888; text-decoration:none; font-size:14px; font-weight:600; }
+    .section { background:white; border-radius:24px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:20px; }
+    .section h2 { font-size:18px; margin-bottom:14px; color:#1a1a1a; }
+    .canvas-wrapper { background:#fafafa; border-radius:16px; overflow:hidden; border:2px dashed #ddd; }
+    #whiteboardCanvas { width:100%; height:auto; aspect-ratio:4 / 3; display:block; touch-action:none; cursor:crosshair; background:white; }
+    .canvas-tools { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .canvas-tools button { padding:10px 16px; border:none; border-radius:40px; background:#f0f0f0; font-size:13px; font-weight:600; cursor:pointer; transition:0.2s; flex:1; min-width:60px; }
     .canvas-tools button:active { transform:scale(0.95); }
+    .btn-primary { background:#1a1a1a !important; color:white !important; }
+    .btn-danger { background:#ff4d4d !important; color:white !important; }
     .upload-area { display:flex; flex-direction:column; gap:10px; }
-    .upload-area input[type="file"] { padding:12px; border:2px dashed #ddd; border-radius:16px; background:#fafafa; }
-    .gallery-admin { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-top:16px; }
-    .admin-card { background:#fff; border-radius:16px; overflow:hidden; border:2px solid #eee; }
+    .upload-area input[type="file"] { padding:12px; border:2px dashed #ddd; border-radius:16px; background:#fafafa; font-size:14px; }
+    .upload-area .row { display:flex; gap:10px; flex-wrap:wrap; }
+    .upload-area .row input, .upload-area .row textarea { flex:1; padding:12px 16px; border:2px solid #eee; border-radius:14px; font-size:14px; font-family:inherit; min-width:120px; }
+    .upload-area .row textarea { min-height:60px; resize:vertical; }
+    .upload-area .row button { padding:12px 24px; background:#1a1a1a; color:white; border:none; border-radius:40px; font-weight:600; cursor:pointer; }
+    .upload-area .row button:active { transform:scale(0.95); }
+    .gallery-admin { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; margin-top:16px; }
+    .admin-card { background:white; border-radius:16px; overflow:hidden; border:2px solid #eee; transition:0.2s; position:relative; }
     .admin-card img { width:100%; height:130px; object-fit:cover; display:block; }
-    .admin-card .info { padding:10px 12px; font-weight:600; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .admin-card .info { padding:10px 12px; font-size:13px; font-weight:600; color:#1a1a1a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .admin-card .actions { display:flex; gap:6px; padding:0 12px 12px; }
-    .admin-card .actions button { flex:1; padding:6px; border:none; border-radius:30px; font-size:12px; font-weight:600; cursor:pointer; }
-    .btn-edit { background:#f0f0f0; }
-    .btn-del { background:#ff4d4d; color:#fff; }
-    .empty-admin { text-align:center; color:#bbb; padding:30px 0; grid-column:1/-1; }
-    .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:#fff; padding:12px 28px; border-radius:40px; font-size:14px; opacity:0; transition:0.3s; pointer-events:none; z-index:999; }
+    .admin-card .actions button { flex:1; padding:6px; border:none; border-radius:30px; font-size:12px; font-weight:600; cursor:pointer; transition:0.2s; }
+    .admin-card .actions button:active { transform:scale(0.93); }
+    .btn-edit { background:#f0f0f0; color:#333; }
+    .btn-del { background:#ff4d4d; color:white; }
+    .empty-admin { text-align:center; color:#bbb; padding:30px 0; grid-column:1 / -1; }
+    .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:white; padding:12px 28px; border-radius:40px; font-size:14px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.2); opacity:0; transition:0.3s; pointer-events:none; z-index:999; white-space:nowrap; }
     .toast.show { opacity:1; }
-    .progress-bar { width:100%; height:6px; background:#eee; border-radius:4px; margin-top:8px; overflow:hidden; display:none; }
-    .progress-bar .fill { height:100%; background:#34c759; width:0%; transition:width 0.3s; }
-    .color-row { display:flex; gap:8px; align-items:center; margin-top:10px; }
-    .color-row input[type="color"] { width:40px; height:36px; border:none; border-radius:10px; padding:0; }
-    .color-row input[type="range"] { flex:1; }
   </style>
 </head>
 <body>
-
 <div class="container">
   <div class="header">
-    <div><h1>🔐 Admin</h1><span style="background:#ffd700;padding:4px 14px;border-radius:40px;font-size:12px;font-weight:700;">Edit Mode</span></div>
-    <a href="index.html">👀 Lihat Galeri</a>
+    <div><h1>🔐 Admin Panel</h1><span class="badge">✏️ Edit Mode</span></div>
+    <a href="index.html">👀 Lihat Mading</a>
   </div>
 
-  <!-- Upload File -->
   <div class="section">
-    <h2>📤 Upload Gambar</h2>
+    <h2>✏️ Whiteboard (gambar bebas)</h2>
+    <div class="canvas-wrapper"><canvas id="whiteboardCanvas" width="600" height="450"></canvas></div>
+    <div class="canvas-tools">
+      <button class="btn-primary" id="saveDrawingBtn">💾 Simpan ke Gallery</button>
+      <button class="btn-danger" id="clearCanvasBtn">🗑️ Hapus</button>
+      <button id="undoCanvasBtn">↩️ Undo</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>📤 Upload + Deskripsi</h2>
     <div class="upload-area">
       <input type="file" id="imageInput" accept="image/*">
       <div class="row">
-        <input type="text" id="captionInput" placeholder="Judul">
-        <textarea id="descInput" placeholder="Deskripsi"></textarea>
+        <input type="text" id="captionInput" placeholder="Judul karya...">
+        <textarea id="descInput" placeholder="Deskripsi / narasi cerita..."></textarea>
       </div>
-      <button class="btn" id="uploadFileBtn">➕ Tambah</button>
-      <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
+      <button id="uploadBtn">➕ Tambahkan ke Mading</button>
     </div>
   </div>
 
-  <!-- Whiteboard -->
   <div class="section">
-    <h2>✏️ Whiteboard</h2>
-    <div class="canvas-wrapper">
-      <canvas id="whiteboardCanvas" width="600" height="450"></canvas>
-    </div>
-    <div class="color-row">
-      <input type="color" id="brushColor" value="#1a1a1a">
-      <input type="range" id="brushSize" min="1" max="30" value="4">
-    </div>
-    <div class="canvas-tools">
-      <button class="btn-success" id="saveDrawingBtn">💾 Simpan</button>
-      <button class="btn-danger" id="clearCanvasBtn">🗑️ Hapus</button>
-      <button class="btn-secondary" id="undoCanvasBtn">↩️ Undo</button>
+    <h2>📚 Daftar Karya (<span id="countLabel">0</span>)</h2>
+    <div id="galleryAdminContainer" class="gallery-admin">
+      <div class="empty-admin">Belum ada karya</div>
     </div>
   </div>
-
-  <!-- Daftar Karya -->
-  <div class="section">
-    <h2>📚 Daftar Karya (<span id="count">0</span>)</h2>
-    <div id="adminGallery" class="gallery-admin"><div class="empty-admin">Belum ada</div></div>
-  </div>
+  <div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0;">💾 Penyimpanan HP: <span id="storageInfo">0 MB</span> / 500 MB</div>
 </div>
+<div id="toast" class="toast">✨ Tersimpan!</div>
 
-<div id="toast" class="toast">✅ Tersimpan</div>
+<script>
+  // ========== INDEXED DB WRAPPER ==========
+  const DB_NAME = 'MadingDB';
+  const STORE_NAME = 'karya';
+  const MAX_BYTES = 500 * 1024 * 1024; // 500 MB
 
-<script type="importmap">
-{
-  "imports": {
-    "firebase/app": "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js",
-    "firebase/storage": "https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js"
-  }
-}
-</script>
-
-<script type="module">
-  import { initializeApp } from "firebase/app";
-  import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
-  import { getStorage, ref, uploadString, getDownloadURL } from "firebase/storage";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCrhghmAhtTijVNLKw5izsa-7TVCRzd2L4",
-    authDomain: "galeri-kreatif.firebaseapp.com",
-    projectId: "galeri-kreatif",
-    storageBucket: "galeri-kreatif.firebasestorage.app",
-    messagingSenderId: "436229179023",
-    appId: "1:436229179023:web:78445a449aaf18d30252fa"
-  };
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-  console.log('✅ Firebase siap');
-
-  const toast = document.getElementById('toast');
-  const progressBar = document.getElementById('progressBar');
-  const progressFill = document.getElementById('progressFill');
-
-  let toastTimer;
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
-  }
-
-  function setProgress(pct) {
-    progressBar.style.display = 'block';
-    progressFill.style.width = pct + '%';
-    if (pct >= 100) {
-      setTimeout(() => { progressBar.style.display = 'none'; progressFill.style.width = '0%'; }, 1000);
-    }
-  }
-
-  async function uploadToStorage(base64Image, retry = 3) {
-    for (let i = 0; i < retry; i++) {
-      try {
-        const path = `karya/${Date.now()}_${Math.random().toString(36).slice(2)}.png`;
-        const storageRef = ref(storage, path);
-        await uploadString(storageRef, base64Image, 'data_url');
-        return await getDownloadURL(storageRef);
-      } catch (err) {
-        console.warn(`⚠️ Upload retry ${i+1}/${retry}:`, err.message);
-        if (i === retry - 1) throw err;
-        await new Promise(r => setTimeout(r, 2000));
-      }
-    }
-  }
-
-  // Upload file
-  document.getElementById('uploadFileBtn').addEventListener('click', async () => {
-    try {
-      const fileInput = document.getElementById('imageInput');
-      const caption = document.getElementById('captionInput').value.trim() || 'Karya';
-      const description = document.getElementById('descInput').value.trim();
-
-      if (!fileInput.files || fileInput.files.length === 0) {
-        showToast('⚠️ Pilih gambar');
-        return;
-      }
-
-      const file = fileInput.files[0];
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          setProgress(30);
-          showToast('⏳ Upload...');
-          const imgUrl = await uploadToStorage(e.target.result);
-          setProgress(70);
-          await addDoc(collection(db, 'karya'), {
-            src: imgUrl,
-            caption,
-            description: description || '',
-            createdAt: new Date()
-          });
-          fileInput.value = '';
-          document.getElementById('captionInput').value = '';
-          document.getElementById('descInput').value = '';
-          setProgress(100);
-          showToast('✅ Berhasil ditambahkan!');
-        } catch (error) {
-          console.error('❌ Gagal upload file:', error);
-          showToast('⚠️ ' + error.message);
-          setProgress(0);
-          progressBar.style.display = 'none';
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, 1);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+          store.createIndex('createdAt', 'createdAt', { unique: false });
         }
       };
-      reader.readAsDataURL(file);
-    } catch (error) {
-      console.error('❌ Gagal:', error);
-      showToast('⚠️ ' + error.message);
-    }
-  });
+    });
+  }
 
-  // Whiteboard
+  async function getAllKarya() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const index = store.index('createdAt');
+      const request = index.openCursor(null, 'prev');
+      const results = [];
+      request.onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) {
+          results.push(cursor.value);
+          cursor.continue();
+        } else {
+          resolve(results);
+        }
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function addKarya(fileBlob, caption, description) {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const item = {
+      blob: fileBlob,
+      caption: caption || 'Karya',
+      description: description || '',
+      createdAt: Date.now(),
+      size: fileBlob.size
+    };
+    store.add(item);
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+    await enforceStorageLimit();
+    return item;
+  }
+
+  async function deleteKarya(id) {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.delete(id);
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+  }
+
+  async function updateKarya(id, newCaption, newDescription) {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const item = await new Promise((resolve, reject) => {
+      const req = store.get(id);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    if (item) {
+      item.caption = newCaption;
+      item.description = newDescription;
+      store.put(item);
+    }
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+  }
+
+  async function getTotalStorageSize() {
+    const all = await getAllKarya();
+    return all.reduce((acc, curr) => acc + (curr.size || 0), 0);
+  }
+
+  async function enforceStorageLimit() {
+    let total = await getTotalStorageSize();
+    if (total <= MAX_BYTES) return;
+    const all = await getAllKarya();
+    all.sort((a, b) => a.createdAt - b.createdAt);
+    let toDelete = [];
+    let currentTotal = total;
+    for (let item of all) {
+      if (currentTotal <= MAX_BYTES) break;
+      toDelete.push(item.id);
+      currentTotal -= (item.size || 0);
+    }
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    for (let id of toDelete) store.delete(id);
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+    console.log(`🧹 Hapus ${toDelete.length} gambar tua (batas 500MB)`);
+    updateStorageInfo();
+  }
+
+  async function updateStorageInfo() {
+    const total = await getTotalStorageSize();
+    document.getElementById('storageInfo').textContent = (total / 1024 / 1024).toFixed(1) + ' MB';
+  }
+
+  // ========== CANVAS WHITEBOARD ==========
   const canvas = document.getElementById('whiteboardCanvas');
   const ctx = canvas.getContext('2d');
+  const toast = document.getElementById('toast');
   let drawingHistory = [];
   let isDrawing = false;
   let lastX = 0, lastY = 0;
 
+  function showToast(msg) {
+    toast.textContent = msg; toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
   function getPos(e) {
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
     let clientX, clientY;
-    if (e.touches) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-      e.preventDefault();
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
+    if (e.touches) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; e.preventDefault(); }
+    else { clientX = e.clientX; clientY = e.clientY; }
     return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
   }
-
-  function startDraw(e) {
-    e.preventDefault();
-    isDrawing = true;
-    const pos = getPos(e);
-    lastX = pos.x;
-    lastY = pos.y;
-  }
-
+  function startDraw(e) { e.preventDefault(); isDrawing = true; const pos = getPos(e); lastX = pos.x; lastY = pos.y; }
   function draw(e) {
-    e.preventDefault();
-    if (!isDrawing) return;
+    e.preventDefault(); if (!isDrawing) return;
     const pos = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.strokeStyle = document.getElementById('brushColor').value;
-    ctx.lineWidth = document.getElementById('brushSize').value;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-    lastX = pos.x;
-    lastY = pos.y;
+    ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y);
+    ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.stroke();
+    lastX = pos.x; lastY = pos.y;
   }
-
   function endDraw(e) {
     e.preventDefault();
-    if (isDrawing) {
-      isDrawing = false;
-      canvas.releasePointerCapture?.(e.pointerId);
-      drawingHistory.push(canvas.toDataURL());
-      if (drawingHistory.length > 30) drawingHistory.shift();
-    }
+    if (isDrawing) { isDrawing = false; drawingHistory.push(canvas.toDataURL()); if (drawingHistory.length > 30) drawingHistory.shift(); }
   }
-
-  canvas.style.touchAction = 'none';
-  canvas.addEventListener('pointerdown', (e) => { canvas.setPointerCapture(e.pointerId); startDraw(e); });
-  canvas.addEventListener('pointermove', draw);
-  canvas.addEventListener('pointerup', endDraw);
-  canvas.addEventListener('pointercancel', endDraw);
+  canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', endDraw); canvas.addEventListener('mouseleave', endDraw);
+  canvas.addEventListener('touchstart', startDraw, { passive: false }); canvas.addEventListener('touchmove', draw, { passive: false });
+  canvas.addEventListener('touchend', endDraw, { passive: false });
 
   document.getElementById('clearCanvasBtn').addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawingHistory = [canvas.toDataURL()];
-    showToast('🧹 Canvas dibersihkan');
+    ctx.clearRect(0, 0, canvas.width, canvas.height); drawingHistory = [canvas.toDataURL()]; showToast('🧹 Dibersihkan');
   });
-
   document.getElementById('undoCanvasBtn').addEventListener('click', () => {
     if (drawingHistory.length > 1) {
       drawingHistory.pop();
       const prev = drawingHistory[drawingHistory.length - 1];
       const img = new Image();
-      img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-        showToast('↩️ Undo');
-      };
+      img.onload = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(img, 0, 0); showToast('↩️ Undo'); };
       img.src = prev;
-    } else {
-      showToast('⚠️ Tidak ada undo');
-    }
+    } else showToast('⚠️ Tidak ada undo');
   });
 
+  // ========== SIMPAN WHITEBOARD KE INDEXEDDB ==========
   document.getElementById('saveDrawingBtn').addEventListener('click', async () => {
+    const dataUrl = canvas.toDataURL();
+    const caption = prompt('Judul karya:', 'Gambar whiteboard');
+    if (caption === null) return;
+    const desc = prompt('Deskripsi / narasi:', '');
     try {
-      const dataUrl = canvas.toDataURL();
-      const caption = prompt('Judul:', 'Gambar whiteboard');
-      if (caption === null) return;
-      const desc = prompt('Deskripsi:', '');
-      showToast('⏳ Upload...');
-      const imgUrl = await uploadToStorage(dataUrl);
-      await addDoc(collection(db, 'karya'), {
-        src: imgUrl,
-        caption,
-        description: desc || '',
-        createdAt: new Date()
-      });
-      showToast('✅ Berhasil ditambahkan!');
-    } catch (error) {
-      console.error('❌ Gagal simpan drawing:', error);
-      showToast('⚠️ ' + error.message);
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      await addKarya(blob, caption, desc);
+      renderAdminGallery();
+      showToast('✅ Gambar ditambahkan ke mading!');
+    } catch (err) {
+      showToast('⚠️ Gagal: ' + err.message);
     }
   });
 
-  // Listener database
-  function listenKarya() {
-    const q = query(collection(db, 'karya'), orderBy('createdAt', 'desc'));
-    onSnapshot(q, (snapshot) => {
-      const data = [];
-      snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
-      renderAdminGallery(data);
-      document.getElementById('count').textContent = data.length;
-    }, (error) => {
-      console.error('❌ Error snapshot:', error);
-    });
-  }
+  // ========== UPLOAD FILE ==========
+  document.getElementById('uploadBtn').addEventListener('click', async () => {
+    const fileInput = document.getElementById('imageInput');
+    const caption = document.getElementById('captionInput').value.trim() || 'Karya';
+    const description = document.getElementById('descInput').value.trim();
+    if (!fileInput.files || fileInput.files.length === 0) { showToast('⚠️ Pilih gambar dulu'); return; }
+    const file = fileInput.files[0];
+    if (!file.type.startsWith('image/')) { showToast('⚠️ Bukan gambar'); return; }
+    try {
+      await addKarya(file, caption, description);
+      renderAdminGallery();
+      fileInput.value = ''; document.getElementById('captionInput').value = ''; document.getElementById('descInput').value = '';
+      showToast('✅ Karya ditambahkan!');
+    } catch (err) {
+      showToast('⚠️ Gagal: ' + err.message);
+    }
+  });
 
-  function renderAdminGallery(data) {
-    const container = document.getElementById('adminGallery');
+  // ========== RENDER ADMIN GALLERY ==========
+  async function renderAdminGallery() {
+    const container = document.getElementById('galleryAdminContainer');
+    const data = await getAllKarya();
+    document.getElementById('countLabel').textContent = data.length;
+    await updateStorageInfo();
+
     if (data.length === 0) {
       container.innerHTML = `<div class="empty-admin">Belum ada karya</div>`;
       return;
     }
     let html = '';
     data.forEach((item) => {
-      html += `
-        <div class="admin-card">
-          <img src="${item.src}" alt="${item.caption}" loading="lazy">
-          <div class="info">${item.caption || 'Karya'}</div>
-          <div class="actions">
-            <button class="btn-edit" data-id="${item.id}">✏️</button>
-            <button class="btn-del" data-id="${item.id}">🗑️</button>
-          </div>
+      const url = URL.createObjectURL(item.blob);
+      html += `<div class="admin-card">
+        <img src="${url}" alt="${item.caption || 'Karya'}" loading="lazy">
+        <div class="info">${item.caption || 'Karya'}</div>
+        <div class="actions">
+          <button class="btn-edit" data-id="${item.id}">✏️ Edit</button>
+          <button class="btn-del" data-id="${item.id}">🗑️</button>
         </div>
-      `;
+      </div>`;
     });
     container.innerHTML = html;
 
-    container.querySelectorAll('.btn-edit').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const id = btn.dataset.id;
-        const item = data.find(d => d.id === id);
-        if (!item) return;
-        const newCap = prompt('Judul baru:', item.caption || '');
-        if (newCap === null) return;
-        const newDesc = prompt('Deskripsi baru:', item.description || '');
-        try {
-          await updateDoc(doc(db, 'karya', id), { caption: newCap, description: newDesc || '' });
-          showToast('✅ Diperbarui');
-        } catch (err) {
-          showToast('⚠️ Gagal update: ' + err.message);
+    document.querySelectorAll('.btn-del').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = parseInt(e.target.dataset.id);
+        if (confirm('Hapus karya ini?')) {
+          await deleteKarya(id);
+          renderAdminGallery();
+          showToast('🗑️ Dihapus');
         }
       });
     });
-
-    container.querySelectorAll('.btn-del').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        if (!confirm('Hapus karya ini?')) return;
-        const id = btn.dataset.id;
-        try {
-          await deleteDoc(doc(db, 'karya', id));
-          showToast('🗑️ Dihapus');
-        } catch (err) {
-          showToast('⚠️ Gagal hapus: ' + err.message);
-        }
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = parseInt(e.target.dataset.id);
+        const data = await getAllKarya();
+        const item = data.find(d => d.id === id);
+        if (!item) return;
+        const newCaption = prompt('Judul baru:', item.caption || '');
+        if (newCaption === null) return;
+        const newDesc = prompt('Deskripsi baru:', item.description || '');
+        await updateKarya(id, newCaption, newDesc);
+        renderAdminGallery();
+        showToast('✅ Diperbarui');
       });
     });
   }
 
-  listenKarya();
-  console.log('🏁 Admin siap');
+  // ========== INIT ==========
+  renderAdminGallery();
+  setInterval(renderAdminGallery, 3000);
 </script>
 </body>
 </html>

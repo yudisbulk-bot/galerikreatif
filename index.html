@@ -2,156 +2,239 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎨 Galeri Kreatif</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Mading Digital</title>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:system-ui; }
-    body { background:#f5f3f0; padding:16px; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', system-ui, sans-serif; }
+    body { background:#f8f6f2; padding:16px; min-height:100vh; }
     .container { max-width:700px; margin:0 auto; }
-    .header { text-align:center; padding:20px 0 10px; }
-    .header h1 { font-size:32px; font-weight:800; }
-    .badge { background:#1a1a1a; color:#fff; padding:6px 16px; border-radius:40px; font-size:12px; display:inline-block; margin-top:6px; }
-    .gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:16px; margin-top:20px; }
-    .card { background:#fff; border-radius:20px; overflow:hidden; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
-    .card:active { transform:scale(0.97); }
-    .card img { width:100%; height:170px; object-fit:cover; display:block; background:#eee; }
-    .card .title { padding:12px 14px; font-weight:700; font-size:14px; }
-    .empty { text-align:center; padding:60px 20px; color:#bbb; grid-column:1/-1; }
-    .empty span { font-size:48px; display:block; margin-bottom:12px; }
-    .loading { text-align:center; padding:40px; color:#999; grid-column:1/-1; }
-    .modal { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); display:none; justify-content:center; align-items:center; padding:20px; z-index:1000; }
-    .modal.active { display:flex; }
-    .modal-box { background:#fff; border-radius:28px; max-width:480px; width:100%; max-height:90vh; overflow-y:auto; padding:0; }
-    .modal-box img { width:100%; height:auto; max-height:50vh; object-fit:contain; border-radius:28px 28px 0 0; background:#eee; }
-    .modal-content { padding:24px; }
-    .modal-content h2 { font-size:22px; margin-bottom:8px; }
-    .modal-content .desc { background:#f5f3f0; padding:14px 16px; border-radius:14px; white-space:pre-wrap; }
-    .modal-close { display:block; width:100%; padding:14px; margin-top:16px; background:#1a1a1a; color:#fff; border:none; border-radius:40px; font-weight:600; cursor:pointer; }
-    .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:#fff; padding:12px 28px; border-radius:40px; font-size:14px; opacity:0; transition:0.3s; pointer-events:none; z-index:999; }
-    .toast.show { opacity:1; }
-    .footer { text-align:center; color:#ccc; margin-top:40px; font-size:13px; }
+    .header { text-align:center; padding:24px 0 16px; }
+    .header h1 { font-size:32px; font-weight:800; color:#1a1a1a; letter-spacing:-0.5px; }
+    .header p { color:#888; font-size:15px; margin-top:4px; }
+    .admin-badge { display:inline-block; background:#1a1a1a; color:white; padding:6px 16px; border-radius:40px; font-size:12px; font-weight:600; margin-top:8px; }
+    .gallery { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:16px; margin-top:20px; }
+    .gallery-card { background:white; border-radius:20px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.06); cursor:pointer; transition:all 0.25s ease; border:2px solid transparent; position:relative; }
+    .gallery-card:active { transform:scale(0.97); border-color:#1a1a1a; }
+    .gallery-card img { width:100%; height:180px; object-fit:cover; display:block; background:#f0ede8; }
+    .gallery-card .card-title { padding:12px 14px 10px; font-weight:700; font-size:15px; color:#1a1a1a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .gallery-card .card-badge { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); color:white; font-size:11px; padding:4px 12px; border-radius:30px; font-weight:500; }
+    .empty-state { text-align:center; padding:60px 20px; color:#bbb; grid-column:1 / -1; }
+    .empty-state span { font-size:48px; display:block; margin-bottom:12px; }
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); display:none; justify-content:center; align-items:center; padding:20px; z-index:1000; }
+    .modal-overlay.active { display:flex; }
+    .modal-box { background:white; border-radius:28px; max-width:480px; width:100%; max-height:90vh; overflow-y:auto; padding:0; box-shadow:0 24px 64px rgba(0,0,0,0.2); }
+    .modal-box img { width:100%; height:auto; max-height:50vh; object-fit:contain; background:#f5f3f0; border-radius:28px 28px 0 0; }
+    .modal-content { padding:24px 24px 28px; }
+    .modal-content h2 { font-size:22px; font-weight:700; color:#1a1a1a; margin-bottom:8px; }
+    .modal-content .desc-label { font-size:12px; font-weight:600; color:#999; text-transform:uppercase; letter-spacing:0.5px; margin-top:12px; display:block; }
+    .modal-content .description { font-size:16px; line-height:1.6; color:#333; background:#f8f6f2; padding:14px 16px; border-radius:14px; margin-top:6px; white-space:pre-wrap; word-break:break-word; min-height:40px; }
+    .modal-close { display:block; width:100%; padding:14px; margin-top:16px; background:#1a1a1a; color:white; border:none; border-radius:40px; font-size:16px; font-weight:600; cursor:pointer; }
+    .modal-close:active { transform:scale(0.97); }
+    .footer { text-align:center; color:#ccc; font-size:13px; margin-top:40px; padding-bottom:10px; }
     .footer a { color:#888; text-decoration:none; font-weight:600; }
   </style>
 </head>
 <body>
-
 <div class="container">
   <div class="header">
-    <h1>🎨 Galeri Kreatif</h1>
-    <p>Lihat & bagikan karya</p>
-    <div class="badge">🔥 Firebase</div>
+    <h1>📌 Mading Digital</h1>
+    <p>Klik karya untuk baca ceritanya</p>
+    <div class="admin-badge">👀 Mode Pengunjung</div>
   </div>
-  <div id="gallery" class="gallery"><div class="loading">⏳ Memuat...</div></div>
-  <div class="footer">
-    <a href="admin.html">🔐 Buka Admin</a>
+  <div id="galleryContainer" class="gallery">
+    <div class="empty-state"><span>🖼️</span>Belum ada karya<br><small style="color:#ddd;">Admin belum mengisi mading</small></div>
   </div>
+  <div class="footer"><a href="admin.html">🔐 Mode Admin</a> • Data di HP kamu</div>
 </div>
 
-<div class="modal" id="detailModal">
+<div class="modal-overlay" id="detailModal">
   <div class="modal-box">
-    <img id="modalImage" src="">
+    <img id="modalImage" src="" alt="Karya">
     <div class="modal-content">
       <h2 id="modalTitle">Judul</h2>
-      <div class="desc" id="modalDesc">Deskripsi</div>
-      <button class="modal-close" id="closeModal">Tutup</button>
+      <span class="desc-label">📖 Deskripsi</span>
+      <div class="description" id="modalDesc">Deskripsi karya...</div>
+      <button class="modal-close" id="closeModalBtn">Tutup</button>
     </div>
   </div>
 </div>
 
-<div id="toast" class="toast">✅</div>
+<script>
+  // ========== INDEXED DB WRAPPER ==========
+  const DB_NAME = 'MadingDB';
+  const STORE_NAME = 'karya';
+  const MAX_BYTES = 500 * 1024 * 1024; // 500 MB
 
-<script type="importmap">
-{
-  "imports": {
-    "firebase/app": "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js"
-  }
-}
-</script>
-
-<script type="module">
-  import { initializeApp } from "firebase/app";
-  import { getFirestore, collection, query, orderBy, onSnapshot } from "firebase/firestore";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCrhghmAhtTijVNLKw5izsa-7TVCRzd2L4",
-    authDomain: "galeri-kreatif.firebaseapp.com",
-    projectId: "galeri-kreatif",
-    storageBucket: "galeri-kreatif.firebasestorage.app",
-    messagingSenderId: "436229179023",
-    appId: "1:436229179023:web:78445a449aaf18d30252fa"
-  };
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  console.log('✅ Firebase siap');
-
-  const galleryEl = document.getElementById('gallery');
-  const modal = document.getElementById('detailModal');
-  const modalImg = document.getElementById('modalImage');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalDesc = document.getElementById('modalDesc');
-  const closeModal = document.getElementById('closeModal');
-  const toast = document.getElementById('toast');
-
-  let toastTimer;
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
-  }
-
-  function listenKarya() {
-    console.log('👂 Mendengarkan koleksi karya...');
-    const q = query(collection(db, 'karya'), orderBy('createdAt', 'desc'));
-    onSnapshot(q, (snapshot) => {
-      const data = [];
-      snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
-      console.log(`📦 ${data.length} karya diterima`);
-      renderGallery(data);
-    }, (error) => {
-      console.error('❌ Error snapshot:', error);
-      galleryEl.innerHTML = `<div class="empty"><span>⚠️</span>${error.message}</div>`;
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, 1);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+          store.createIndex('createdAt', 'createdAt', { unique: false });
+        }
+      };
     });
   }
 
-  function renderGallery(data) {
+  async function getAllKarya() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const index = store.index('createdAt');
+      const request = index.openCursor(null, 'prev'); // descending
+      const results = [];
+      request.onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) {
+          results.push(cursor.value);
+          cursor.continue();
+        } else {
+          resolve(results);
+        }
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function addKarya(fileBlob, caption, description) {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const item = {
+      blob: fileBlob,
+      caption: caption || 'Karya',
+      description: description || '',
+      createdAt: Date.now(),
+      size: fileBlob.size
+    };
+    store.add(item);
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+    await enforceStorageLimit();
+    return item;
+  }
+
+  async function deleteKarya(id) {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    store.delete(id);
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+  }
+
+  async function updateKarya(id, newCaption, newDescription) {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const item = await new Promise((resolve, reject) => {
+      const req = store.get(id);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    if (item) {
+      item.caption = newCaption;
+      item.description = newDescription;
+      store.put(item);
+    }
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+  }
+
+  async function getTotalStorageSize() {
+    const all = await getAllKarya();
+    return all.reduce((acc, curr) => acc + (curr.size || 0), 0);
+  }
+
+  async function enforceStorageLimit() {
+    let total = await getTotalStorageSize();
+    if (total <= MAX_BYTES) return;
+
+    const all = await getAllKarya();
+    all.sort((a, b) => a.createdAt - b.createdAt); // oldest first
+
+    let toDelete = [];
+    let currentTotal = total;
+    for (let item of all) {
+      if (currentTotal <= MAX_BYTES) break;
+      toDelete.push(item.id);
+      currentTotal -= (item.size || 0);
+    }
+
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    for (let id of toDelete) store.delete(id);
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = resolve;
+      tx.onerror = reject;
+    });
+    console.log(`🧹 Dihapus ${toDelete.length} gambar tua (batas 500MB)`);
+  }
+
+  // ========== RENDER PUBLIK ==========
+  async function renderGallery() {
+    const container = document.getElementById('galleryContainer');
+    const data = await getAllKarya();
     if (data.length === 0) {
-      galleryEl.innerHTML = `<div class="empty"><span>🖼️</span>Belum ada karya</div>`;
+      container.innerHTML = `<div class="empty-state"><span>🖼️</span>Belum ada karya<br><small style="color:#ddd;">Admin belum mengisi mading</small></div>`;
       return;
     }
     let html = '';
-    data.forEach((item, i) => {
-      html += `
-        <div class="card" data-index="${i}">
-          <img src="${item.src}" alt="${item.caption}" loading="lazy">
-          <div class="title">${item.caption || 'Karya'}</div>
-        </div>
-      `;
+    data.forEach((item) => {
+      const url = URL.createObjectURL(item.blob);
+      const hasDesc = item.description && item.description.trim().length > 0;
+      html += `<div class="gallery-card" data-id="${item.id}">
+        <img src="${url}" alt="${item.caption || 'Karya'}" loading="lazy">
+        <div class="card-title">${item.caption || 'Karya'}</div>
+        ${hasDesc ? `<div class="card-badge">📖</div>` : ''}
+      </div>`;
     });
-    galleryEl.innerHTML = html;
-
-    document.querySelectorAll('.card').forEach(card => {
-      card.addEventListener('click', () => {
-        const idx = parseInt(card.dataset.index);
-        const item = data[idx];
-        showDetail(item);
+    container.innerHTML = html;
+    document.querySelectorAll('.gallery-card').forEach(card => {
+      card.addEventListener('click', async () => {
+        const id = parseInt(card.dataset.id);
+        const data = await getAllKarya();
+        const item = data.find(d => d.id === id);
+        if (item) openDetail(item);
       });
     });
   }
 
-  function showDetail(item) {
-    modalImg.src = item.src;
-    modalTitle.textContent = item.caption || 'Karya';
-    modalDesc.textContent = item.description || 'Tidak ada deskripsi.';
-    modal.classList.add('active');
+  function openDetail(item) {
+    const url = URL.createObjectURL(item.blob);
+    document.getElementById('modalImage').src = url;
+    document.getElementById('modalTitle').textContent = item.caption || 'Karya';
+    document.getElementById('modalDesc').textContent = item.description || 'Tidak ada deskripsi untuk karya ini.';
+    document.getElementById('detailModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
   }
 
-  closeModal.addEventListener('click', () => modal.classList.remove('active'));
-  modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+  document.getElementById('closeModalBtn').addEventListener('click', () => {
+    document.getElementById('detailModal').classList.remove('active');
+    document.body.style.overflow = '';
+  });
+  document.getElementById('detailModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+      document.getElementById('detailModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
 
-  listenKarya();
-  console.log('🏁 Aplikasi publik siap');
+  // ========== START ==========
+  renderGallery();
+  setInterval(renderGallery, 3000); // auto refresh
 </script>
 </body>
 </html>
