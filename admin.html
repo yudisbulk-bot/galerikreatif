@@ -40,9 +40,61 @@
     .empty-admin { text-align:center; color:#bbb; padding:30px 0; grid-column:1 / -1; }
     .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:white; padding:12px 28px; border-radius:40px; font-size:14px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.2); opacity:0; transition:0.3s; pointer-events:none; z-index:999; white-space:nowrap; }
     .toast.show { opacity:1; }
+
+    /* ===== MODAL PROFESIONAL UNTUK INPUT JUDUL & DESKRIPSI ===== */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px); display: none;
+      justify-content: center; align-items: center;
+      padding: 20px; z-index: 2000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 28px;
+      max-width: 420px; width: 100%;
+      padding: 28px; box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+      animation: popIn 0.25s ease;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-box h3 {
+      font-size: 20px; font-weight: 700; color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+    .modal-box p.sub {
+      font-size: 14px; color: #888; margin-bottom: 20px;
+    }
+    .modal-box label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: #333; margin-bottom: 4px; margin-top: 14px;
+    }
+    .modal-box input, .modal-box textarea {
+      width: 100%; padding: 12px 14px;
+      border: 2px solid #eee; border-radius: 14px;
+      font-size: 15px; font-family: inherit;
+      transition: border 0.2s; background: #fafafa;
+    }
+    .modal-box input:focus, .modal-box textarea:focus {
+      border-color: #1a1a1a; outline: none; background: #fff;
+    }
+    .modal-box textarea { min-height: 90px; resize: vertical; }
+    .modal-actions {
+      display: flex; gap: 10px; margin-top: 24px;
+    }
+    .modal-actions button {
+      flex: 1; padding: 12px; border: none; border-radius: 40px;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: 0.2s;
+    }
+    .modal-actions button:active { transform: scale(0.95); }
+    .btn-modal-cancel { background: #f0f0f0; color: #333; }
+    .btn-modal-save { background: #1a1a1a; color: white; }
   </style>
 </head>
 <body>
+
 <div class="container">
   <div class="header">
     <div><h1>🔐 Admin Panel</h1><span class="badge">✏️ Edit Mode</span></div>
@@ -79,13 +131,33 @@
   </div>
   <div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0;">💾 Penyimpanan HP: <span id="storageInfo">0 MB</span> / 500 MB</div>
 </div>
+
 <div id="toast" class="toast">✨ Tersimpan!</div>
+
+<!-- ===== MODAL PROFESIONAL ===== -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-box">
+    <h3 id="modalHeader">📝 Detail Karya</h3>
+    <p class="sub">Lengkapi informasi karya agar lebih bermakna.</p>
+    
+    <label for="modalCaption">Judul Karya</label>
+    <input type="text" id="modalCaption" placeholder="Contoh: Senja di Pelabuhan" value="">
+    
+    <label for="modalDesc">Deskripsi / Cerita</label>
+    <textarea id="modalDesc" placeholder="Tuliskan cerita atau inspirasi di balik karya ini..."></textarea>
+    
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" id="modalCancelBtn">Batal</button>
+      <button class="btn-modal-save" id="modalSaveBtn">Simpan</button>
+    </div>
+  </div>
+</div>
 
 <script>
   // ========== INDEXED DB WRAPPER ==========
   const DB_NAME = 'MadingDB';
   const STORE_NAME = 'karya';
-  const MAX_BYTES = 500 * 1024 * 1024; // 500 MB
+  const MAX_BYTES = 500 * 1024 * 1024;
 
   function openDB() {
     return new Promise((resolve, reject) => {
@@ -199,7 +271,6 @@
       tx.oncomplete = resolve;
       tx.onerror = reject;
     });
-    console.log(`🧹 Hapus ${toDelete.length} gambar tua (batas 500MB)`);
     updateStorageInfo();
   }
 
@@ -260,39 +331,91 @@
     } else showToast('⚠️ Tidak ada undo');
   });
 
-  // ========== SIMPAN WHITEBOARD KE INDEXEDDB ==========
-  document.getElementById('saveDrawingBtn').addEventListener('click', async () => {
-    const dataUrl = canvas.toDataURL();
-    const caption = prompt('Judul karya:', 'Gambar whiteboard');
-    if (caption === null) return;
-    const desc = prompt('Deskripsi / narasi:', '');
-    try {
-      const response = await fetch(dataUrl);
-      const blob = await response.blob();
-      await addKarya(blob, caption, desc);
-      renderAdminGallery();
-      showToast('✅ Gambar ditambahkan ke mading!');
-    } catch (err) {
-      showToast('⚠️ Gagal: ' + err.message);
-    }
+  // ========== MODAL LOGIC ==========
+  const modalOverlay = document.getElementById('detailModal');
+  const modalCaption = document.getElementById('modalCaption');
+  const modalDesc = document.getElementById('modalDesc');
+  const modalSaveBtn = document.getElementById('modalSaveBtn');
+  const modalCancelBtn = document.getElementById('modalCancelBtn');
+  let pendingModalAction = null; // 'save_drawing', 'upload_file', 'edit_item'
+
+  function openModal(defaultCaption, defaultDesc, action, editingId = null) {
+    modalCaption.value = defaultCaption || '';
+    modalDesc.value = defaultDesc || '';
+    pendingModalAction = { action, editingId };
+    modalOverlay.classList.add('active');
+  }
+
+  function closeModal() {
+    modalOverlay.classList.remove('active');
+    pendingModalAction = null;
+  }
+
+  modalCancelBtn.addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal();
   });
 
-  // ========== UPLOAD FILE ==========
+  modalSaveBtn.addEventListener('click', async () => {
+    if (!pendingModalAction) return;
+    const finalCaption = modalCaption.value.trim() || 'Karya';
+    const finalDesc = modalDesc.value.trim();
+
+    const { action, editingId } = pendingModalAction;
+
+    if (action === 'save_drawing') {
+      // Simpan gambar whiteboard
+      const dataUrl = canvas.toDataURL();
+      try {
+        const response = await fetch(dataUrl);
+        const blob = await response.blob();
+        await addKarya(blob, finalCaption, finalDesc);
+        renderAdminGallery();
+        showToast('✅ Gambar ditambahkan ke mading!');
+      } catch (err) { showToast('⚠️ Gagal: ' + err.message); }
+    } 
+    else if (action === 'upload_file') {
+      // Simpan file upload (data sudah disiapkan di variabel global)
+      if (!window.pendingUploadBlob) return;
+      try {
+        await addKarya(window.pendingUploadBlob, finalCaption, finalDesc);
+        renderAdminGallery();
+        window.pendingUploadBlob = null;
+        showToast('✅ Karya ditambahkan!');
+      } catch (err) { showToast('⚠️ Gagal: ' + err.message); }
+    } 
+    else if (action === 'edit_item' && editingId) {
+      try {
+        await updateKarya(editingId, finalCaption, finalDesc);
+        renderAdminGallery();
+        showToast('✅ Diperbarui');
+      } catch (err) { showToast('⚠️ Gagal update: ' + err.message); }
+    }
+
+    closeModal();
+  });
+
+  // ========== SAVE WHITEBOARD (panggil modal) ==========
+  document.getElementById('saveDrawingBtn').addEventListener('click', () => {
+    openModal('Gambar whiteboard', '', 'save_drawing');
+  });
+
+  // ========== UPLOAD FILE (panggil modal) ==========
   document.getElementById('uploadBtn').addEventListener('click', async () => {
     const fileInput = document.getElementById('imageInput');
-    const caption = document.getElementById('captionInput').value.trim() || 'Karya';
-    const description = document.getElementById('descInput').value.trim();
-    if (!fileInput.files || fileInput.files.length === 0) { showToast('⚠️ Pilih gambar dulu'); return; }
-    const file = fileInput.files[0];
-    if (!file.type.startsWith('image/')) { showToast('⚠️ Bukan gambar'); return; }
-    try {
-      await addKarya(file, caption, description);
-      renderAdminGallery();
-      fileInput.value = ''; document.getElementById('captionInput').value = ''; document.getElementById('descInput').value = '';
-      showToast('✅ Karya ditambahkan!');
-    } catch (err) {
-      showToast('⚠️ Gagal: ' + err.message);
+    if (!fileInput.files || fileInput.files.length === 0) {
+      showToast('⚠️ Pilih gambar dulu');
+      return;
     }
+    const file = fileInput.files[0];
+    if (!file.type.startsWith('image/')) {
+      showToast('⚠️ Bukan gambar');
+      return;
+    }
+    // Simpan blob file ke variabel sementara
+    window.pendingUploadBlob = file;
+    openModal('Karya', '', 'upload_file');
+    fileInput.value = '';
   });
 
   // ========== RENDER ADMIN GALLERY ==========
@@ -336,12 +459,8 @@
         const data = await getAllKarya();
         const item = data.find(d => d.id === id);
         if (!item) return;
-        const newCaption = prompt('Judul baru:', item.caption || '');
-        if (newCaption === null) return;
-        const newDesc = prompt('Deskripsi baru:', item.description || '');
-        await updateKarya(id, newCaption, newDesc);
-        renderAdminGallery();
-        showToast('✅ Diperbarui');
+        // Buka modal edit
+        openModal(item.caption, item.description, 'edit_item', id);
       });
     });
   }
