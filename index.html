@@ -95,13 +95,10 @@
   const modalDesc = document.getElementById('modalDesc');
   const closeModal = document.getElementById('closeModal');
 
-  // ========== LISTENER SEMUA ROOM ==========
   async function loadRooms() {
     const snapshot = await getDocs(collection(db, 'rooms'));
     allRooms = [];
-    snapshot.forEach(doc => {
-      allRooms.push({ id: doc.id, ...doc.data() });
-    });
+    snapshot.forEach(doc => allRooms.push({ id: doc.id, ...doc.data() }));
     renderRoomSelector();
     if (allRooms.length > 0 && !currentRoom) {
       currentRoom = allRooms[0].id;
@@ -111,7 +108,7 @@
 
   function renderRoomSelector() {
     if (allRooms.length === 0) {
-      roomSelector.innerHTML = `<span style="color:#999;font-size:14px;">Belum ada ruang. Buat di Admin.</span>`;
+      roomSelector.innerHTML = `<span style="color:#999;font-size:14px;">Belum ada ruang.</span>`;
       return;
     }
     let html = '';
@@ -120,7 +117,6 @@
       html += `<button class="room-btn ${active}" data-room="${room.id}">${room.name || room.id}</button>`;
     });
     roomSelector.innerHTML = html;
-
     document.querySelectorAll('.room-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const roomId = btn.dataset.room;
@@ -132,20 +128,13 @@
     });
   }
 
-  // ========== LISTENER PER ROOM ==========
   function listenRoom(roomId) {
-    const q = query(
-      collection(db, 'rooms', roomId, 'karya'),
-      orderBy('createdAt', 'desc')
-    );
+    const q = query(collection(db, 'rooms', roomId, 'karya'), orderBy('createdAt', 'desc'));
     onSnapshot(q, (snapshot) => {
       currentData = [];
-      snapshot.forEach(doc => {
-        currentData.push({ id: doc.id, ...doc.data() });
-      });
+      snapshot.forEach(doc => currentData.push({ id: doc.id, ...doc.data() }));
       renderGallery(currentData, roomId);
     }, (error) => {
-      console.error('Error:', error);
       galleryEl.innerHTML = `<div class="empty"><span>⚠️</span>${error.message}</div>`;
     });
   }
@@ -153,12 +142,10 @@
   function renderGallery(data, roomId) {
     const room = allRooms.find(r => r.id === roomId);
     const roomName = room ? room.name : roomId;
-
     if (!data || data.length === 0) {
-      galleryEl.innerHTML = `<div class="empty"><span>🖼️</span>Belum ada karya di ruang ini</div>`;
+      galleryEl.innerHTML = `<div class="empty"><span>🖼️</span>Belum ada karya</div>`;
       return;
     }
-
     let html = '';
     data.forEach((item, i) => {
       html += `
@@ -170,7 +157,6 @@
       `;
     });
     galleryEl.innerHTML = html;
-
     document.querySelectorAll('.card').forEach((card, idx) => {
       card.addEventListener('click', () => {
         const item = data[idx];
