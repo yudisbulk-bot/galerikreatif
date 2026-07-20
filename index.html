@@ -34,6 +34,38 @@
     .footer a { color:#888; text-decoration:none; font-weight:600; }
     .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:#fff; padding:12px 28px; border-radius:40px; font-size:14px; opacity:0; transition:0.3s; pointer-events:none; z-index:999; }
     .toast.show { opacity:1; }
+
+    /* Kotak Saran - pojok kanan atas, permanen */
+    .fab-suggest { position:fixed; top:16px; right:16px; z-index:900; background:#1a1a1a; color:#fff; border:none; border-radius:40px; padding:10px 16px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
+    .fab-suggest:active { transform:scale(0.95); }
+
+    /* Follow akun - tengah bawah, permanen */
+    .fab-follow { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:900; background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; border:none; border-radius:40px; padding:10px 18px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.25); text-decoration:none; display:inline-block; }
+    .fab-follow:active { transform:translateX(-50%) scale(0.95); }
+
+    /* Popup umum (saran & iklan) */
+    .popup-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); display:none; justify-content:center; align-items:center; padding:20px; z-index:2000; }
+    .popup-overlay.active { display:flex; }
+    .popup-box { background:#fff; border-radius:24px; max-width:420px; width:100%; padding:24px; max-height:90vh; overflow-y:auto; position:relative; }
+    .popup-box h3 { margin-bottom:12px; font-size:18px; }
+    .popup-box textarea { width:100%; min-height:100px; padding:12px 14px; border:2px solid #eee; border-radius:14px; font-family:inherit; font-size:14px; resize:vertical; }
+    .popup-box .btn { width:100%; margin-top:12px; padding:12px; border:none; border-radius:40px; background:#1a1a1a; color:#fff; font-weight:700; cursor:pointer; }
+    .popup-close-x { position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; cursor:pointer; color:#999; }
+
+    /* Popup iklan */
+    .ad-section { border-top:1px solid #eee; margin-top:16px; padding-top:16px; }
+    .ad-section:first-child { border-top:none; margin-top:0; padding-top:0; }
+    .ad-follow-btn { display:block; text-align:center; background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; padding:12px; border-radius:40px; font-weight:700; text-decoration:none; margin-top:10px; }
+    .ad-donate-box { background:#f5f3f0; border-radius:14px; padding:14px 16px; margin-top:10px; font-size:14px; }
+
+    /* Mode Admin di halaman galeri */
+    .admin-toggle { background:none; border:none; color:#888; font-weight:600; cursor:pointer; font-size:13px; }
+    .card { position:relative; }
+    .card .admin-actions { display:none; position:absolute; top:8px; right:8px; gap:6px; z-index:10; }
+    body.admin-mode .card .admin-actions { display:flex; }
+    .card .admin-actions button { border:none; border-radius:30px; padding:6px 10px; font-size:12px; font-weight:700; cursor:pointer; }
+    .card .admin-actions .a-edit { background:#fff; }
+    .card .admin-actions .a-del { background:#ff4d4d; color:#fff; }
   </style>
 </head>
 <body>
@@ -45,7 +77,39 @@
     <div class="room-selector" id="roomSelector"></div>
   </div>
   <div id="gallery" class="gallery"><div class="loading">⏳ Memuat...</div></div>
-  <div class="footer"><a href="admin.html">🔐 Admin</a></div>
+  <div class="footer"><button class="admin-toggle" id="adminToggleBtn">🔐 Mode Admin</button> · <a href="admin.html">Buka Panel Admin</a></div>
+</div>
+
+<button class="fab-suggest" id="openSuggestBtn">💬 Kotak Saran</button>
+<a class="fab-follow" href="https://www.instagram.com/yudisbulkdesain" target="_blank" rel="noopener">❤️ Follow @yudisbulkdesain</a>
+
+<div class="popup-overlay" id="suggestOverlay">
+  <div class="popup-box">
+    <button class="popup-close-x" id="closeSuggest">✕</button>
+    <h3>💬 Kotak Saran</h3>
+    <p style="color:#888;font-size:13px;margin-bottom:10px;">Punya saran untuk web ini? Tulis di sini.</p>
+    <textarea id="suggestText" placeholder="Tulis saranmu..."></textarea>
+    <button class="btn popup-btn" id="sendSuggestBtn">Kirim Saran</button>
+  </div>
+</div>
+
+<div class="popup-overlay" id="adOverlay">
+  <div class="popup-box">
+    <button class="popup-close-x" id="closeAd">✕</button>
+    <div class="ad-section">
+      <h3>👋 Halo!</h3>
+      <p style="font-size:14px;color:#555;">Suka sama galeri ini? Yuk mampir & follow untuk lihat karya kreatif lainnya.</p>
+      <a class="ad-follow-btn" href="https://www.instagram.com/yudisbulkdesain" target="_blank" rel="noopener">❤️ Follow @yudisbulkdesain</a>
+    </div>
+    <div class="ad-section">
+      <h3 style="font-size:15px;">🛠️ Butuh Web Serupa?</h3>
+      <p style="font-size:13px;color:#555;">Punya ide pengembangan web sekolah/komunitas? Kirim saran fiturmu lewat Kotak Saran di pojok kanan atas.</p>
+    </div>
+    <div class="ad-section">
+      <h3 style="font-size:15px;">☕ Traktir Admin</h3>
+      <div class="ad-donate-box">Kalau web ini membantu, boleh banget traktir admin <b>Rp3.500</b> lewat e-wallet (DANA/OVO/GoPay). Fitur pembayaran online menyusul ya 🙏</div>
+    </div>
+  </div>
 </div>
 
 <div class="modal" id="detailModal">
@@ -70,7 +134,7 @@
 </script>
 <script type="module">
   import { initializeApp } from "firebase/app";
-  import { getFirestore, collection, query, orderBy, onSnapshot, getDocs } from "firebase/firestore";
+  import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
 
   console.log('🚀 Index module dimulai');
 
@@ -188,14 +252,20 @@
     data.forEach((item, i) => {
       html += `
         <div class="card" data-index="${i}">
+          <div class="admin-actions">
+            <button class="a-edit" data-index="${i}">✏️</button>
+            <button class="a-del" data-index="${i}">🗑️</button>
+          </div>
           <img src="${item.src}" alt="${item.caption}" loading="lazy">
           <div class="title">${item.caption || 'Karya'}</div>
         </div>
       `;
     });
     galleryEl.innerHTML = html;
-    document.querySelectorAll('.card').forEach((card, idx) => {
-      card.addEventListener('click', () => {
+    document.querySelectorAll('.card').forEach((card) => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.admin-actions')) return;
+        const idx = parseInt(card.dataset.index);
         const item = data[idx];
         modalImg.src = item.src;
         modalTitle.textContent = item.caption || 'Karya';
@@ -203,10 +273,95 @@
         modal.classList.add('active');
       });
     });
+    document.querySelectorAll('.a-edit').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.index);
+        const item = data[idx];
+        const newCaption = prompt('Judul baru:', item.caption || '');
+        if (newCaption === null) return;
+        const newDesc = prompt('Deskripsi baru (bisa tempel link gambar):', item.description || '');
+        try {
+          await updateDoc(doc(db, 'rooms', roomId, 'karya', item.id), { caption: newCaption, description: newDesc || '' });
+          showToast('✅ Karya diperbarui');
+        } catch (error) {
+          showToast('⚠️ Gagal update: ' + error.message);
+        }
+      });
+    });
+    document.querySelectorAll('.a-del').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.index);
+        const item = data[idx];
+        if (!confirm('Hapus karya ini?')) return;
+        try {
+          await deleteDoc(doc(db, 'rooms', roomId, 'karya', item.id));
+          showToast('🗑️ Karya dihapus');
+        } catch (error) {
+          showToast('⚠️ Gagal hapus: ' + error.message);
+        }
+      });
+    });
   }
 
   closeModal.addEventListener('click', () => modal.classList.remove('active'));
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+
+  // ===== MODE ADMIN (edit langsung di galeri) =====
+  const ADMIN_PASSWORD = 'admin234';
+  const adminToggleBtn = document.getElementById('adminToggleBtn');
+  function applyAdminUI() {
+    const on = sessionStorage.getItem('adminMode') === '1';
+    document.body.classList.toggle('admin-mode', on);
+    adminToggleBtn.textContent = on ? '🔓 Keluar Mode Admin' : '🔐 Mode Admin';
+  }
+  adminToggleBtn.addEventListener('click', () => {
+    if (sessionStorage.getItem('adminMode') === '1') {
+      sessionStorage.removeItem('adminMode');
+      applyAdminUI();
+      showToast('Mode admin nonaktif');
+      return;
+    }
+    const pass = prompt('Masukkan password admin:');
+    if (pass === ADMIN_PASSWORD) {
+      sessionStorage.setItem('adminMode', '1');
+      applyAdminUI();
+      showToast('✅ Mode admin aktif');
+    } else if (pass !== null) {
+      showToast('⚠️ Password salah');
+    }
+  });
+  applyAdminUI();
+
+  // ===== KOTAK SARAN =====
+  const suggestOverlay = document.getElementById('suggestOverlay');
+  document.getElementById('openSuggestBtn').addEventListener('click', () => suggestOverlay.classList.add('active'));
+  document.getElementById('closeSuggest').addEventListener('click', () => suggestOverlay.classList.remove('active'));
+  suggestOverlay.addEventListener('click', (e) => { if (e.target === suggestOverlay) suggestOverlay.classList.remove('active'); });
+  document.getElementById('sendSuggestBtn').addEventListener('click', async () => {
+    const text = document.getElementById('suggestText').value.trim();
+    if (!text) { showToast('⚠️ Tulis saran dulu'); return; }
+    try {
+      await addDoc(collection(db, 'suggestions'), { text, createdAt: new Date(), read: false });
+      document.getElementById('suggestText').value = '';
+      suggestOverlay.classList.remove('active');
+      showToast('✅ Saran terkirim, makasih!');
+    } catch (error) {
+      showToast('⚠️ Gagal kirim: ' + error.message);
+    }
+  });
+
+  // ===== POPUP IKLAN (sekali per sesi) =====
+  const adOverlay = document.getElementById('adOverlay');
+  document.getElementById('closeAd').addEventListener('click', () => adOverlay.classList.remove('active'));
+  adOverlay.addEventListener('click', (e) => { if (e.target === adOverlay) adOverlay.classList.remove('active'); });
+  if (!sessionStorage.getItem('adShown')) {
+    setTimeout(() => {
+      adOverlay.classList.add('active');
+      sessionStorage.setItem('adShown', '1');
+    }, 1800);
+  }
 
   // ===== START =====
   try {

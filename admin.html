@@ -44,9 +44,31 @@
     .progress-bar { width:100%; height:6px; background:#eee; border-radius:4px; margin-top:8px; overflow:hidden; display:none; }
     .progress-bar .fill { height:100%; background:#34c759; width:0%; transition:width 0.3s; }
     select { padding:12px; border:2px solid #eee; border-radius:14px; font-size:14px; width:100%; margin-bottom:12px; background:white; }
+    .lock-overlay { position:fixed; inset:0; background:#f5f3f0; display:flex; justify-content:center; align-items:center; z-index:5000; padding:20px; }
+    .lock-box { background:#fff; border-radius:24px; padding:28px; max-width:340px; width:100%; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
+    .lock-box input { width:100%; padding:12px 16px; border:2px solid #eee; border-radius:14px; font-size:14px; margin:14px 0; text-align:center; }
+    .lock-box button { width:100%; padding:12px; border:none; border-radius:40px; background:#1a1a1a; color:#fff; font-weight:700; cursor:pointer; }
+    #adminApp { display:none; }
+    .suggest-item { background:#f5f3f0; border-radius:14px; padding:12px 16px; margin-bottom:10px; font-size:14px; display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+    .suggest-item button { border:none; background:#ff4d4d; color:#fff; border-radius:30px; padding:6px 10px; font-size:12px; cursor:pointer; flex-shrink:0; }
+    .color-row { display:flex; gap:8px; align-items:center; margin-top:10px; }
+    .color-row input[type="color"] { width:40px; height:36px; border:none; border-radius:10px; padding:0; }
+    .color-row input[type="range"] { flex:1; }
   </style>
 </head>
 <body>
+
+<div class="lock-overlay" id="lockOverlay">
+  <div class="lock-box">
+    <h2>🔐 Admin</h2>
+    <p style="color:#888;font-size:13px;margin-top:6px;">Masukkan password untuk masuk</p>
+    <input type="password" id="lockPassInput" placeholder="Password">
+    <button id="lockSubmitBtn">Masuk</button>
+    <div id="lockError" style="color:#ff4d4d;font-size:13px;margin-top:8px;"></div>
+  </div>
+</div>
+
+<div id="adminApp">
 <div class="container">
   <div class="header">
     <div><h1>🔐 Admin</h1><span style="background:#ffd700;padding:4px 14px;border-radius:40px;font-size:12px;font-weight:700;">Edit Mode</span></div>
@@ -66,6 +88,10 @@
     <h2>✏️ Whiteboard</h2>
     <div class="canvas-wrapper">
       <canvas id="whiteboardCanvas" width="600" height="450"></canvas>
+    </div>
+    <div class="color-row">
+      <input type="color" id="brushColor" value="#1a1a1a">
+      <input type="range" id="brushSize" min="1" max="30" value="4">
     </div>
     <div class="canvas-tools">
       <button class="btn-success" id="saveDrawingBtn">💾 Simpan</button>
@@ -97,6 +123,12 @@
     <select id="roomSelect"><option value="">Pilih ruang...</option></select>
     <button class="publish-btn" id="publishBtn">📤 Publish ke Server</button>
   </div>
+
+  <div class="section">
+    <h2>📮 Kotak Saran (<span id="suggestCount">0</span>)</h2>
+    <div id="suggestList"><div class="empty-admin">Belum ada saran</div></div>
+  </div>
+</div>
 </div>
 <div id="toast" class="toast">✅ Tersimpan</div>
 
@@ -109,7 +141,8 @@
 </script>
 <script type="module">
   import { initializeApp } from "firebase/app";
-  import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy } from "firebase/firestore";
+  import { getStorage, ref, uploadString, getDownloadURL } from "firebase/storage";
 
   console.log('🚀 Admin module dimulai');
 
@@ -123,6 +156,7 @@
   };
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const storage = getStorage(app);
   console.log('✅ Firebase initialized');
 
   let localData = [];
@@ -153,29 +187,18 @@
     }
   }
 
-  // ===== UPLOAD KE IMGUR =====
+  // ===== UPLOAD KE FIREBASE STORAGE =====
   async function uploadToImgur(base64Image) {
-    console.log('📤 Upload ke Imgur...');
+    console.log('📤 Upload ke Firebase Storage...');
     try {
-      const raw = base64Image.split(',')[1];
-      const formData = new FormData();
-      formData.append('image', raw);
-      formData.append('type', 'base64');
-
-      const response = await fetch('https://api.imgur.com/3/image', {
-        method: 'POST',
-        headers: { 'Authorization': 'Client-ID 546c25a59c58ad7' },
-        body: formData
-      });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.data?.error || 'Gagal upload ke Imgur');
-      }
-      const data = await response.json();
-      console.log('✅ Imgur sukses:', data.data.link);
-      return data.data.link;
+      const path = `karya/${Date.now()}_${Math.random().toString(36).slice(2)}.png`;
+      const storageRef = ref(storage, path);
+      await uploadString(storageRef, base64Image, 'data_url');
+      const url = await getDownloadURL(storageRef);
+      console.log('✅ Storage sukses:', url);
+      return url;
     } catch (err) {
-      console.error('❌ Imgur error:', err);
+      console.error('❌ Storage error:', err);
       throw err;
     }
   }
@@ -212,8 +235,8 @@
     ctx.beginPath();
     ctx.moveTo(lastX, lastY);
     ctx.lineTo(pos.x, pos.y);
-    ctx.strokeStyle = '#1a1a1a';
-    ctx.lineWidth = 4;
+    ctx.strokeStyle = document.getElementById('brushColor').value;
+    ctx.lineWidth = document.getElementById('brushSize').value;
     ctx.lineCap = 'round';
     ctx.stroke();
     lastX = pos.x;
@@ -224,18 +247,18 @@
     e.preventDefault();
     if (isDrawing) {
       isDrawing = false;
+      canvas.releasePointerCapture?.(e.pointerId);
       drawingHistory.push(canvas.toDataURL());
       if (drawingHistory.length > 30) drawingHistory.shift();
     }
   }
 
-  canvas.addEventListener('mousedown', startDraw);
-  canvas.addEventListener('mousemove', draw);
-  canvas.addEventListener('mouseup', endDraw);
-  canvas.addEventListener('mouseleave', endDraw);
-  canvas.addEventListener('touchstart', startDraw, { passive: false });
-  canvas.addEventListener('touchmove', draw, { passive: false });
-  canvas.addEventListener('touchend', endDraw, { passive: false });
+  // Pointer events: satu API untuk mouse, touch, dan stylus (lebih stabil di HP)
+  canvas.style.touchAction = 'none';
+  canvas.addEventListener('pointerdown', (e) => { canvas.setPointerCapture(e.pointerId); startDraw(e); });
+  canvas.addEventListener('pointermove', draw);
+  canvas.addEventListener('pointerup', endDraw);
+  canvas.addEventListener('pointercancel', endDraw);
 
   document.getElementById('clearCanvasBtn').addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -473,14 +496,64 @@
     }
   });
 
-  // ===== START =====
-  try {
-    await loadRooms();
-    loadLocal();
-    console.log('🏁 Admin siap');
-  } catch (error) {
-    console.error('❌ Error saat startup:', error);
-    showToast('⚠️ Error startup: ' + error.message);
+  // ===== KOTAK SARAN (dilihat admin) =====
+  function listenSuggestions() {
+    const q = query(collection(db, 'suggestions'), orderBy('createdAt', 'desc'));
+    onSnapshot(q, (snapshot) => {
+      const items = [];
+      snapshot.forEach(d => items.push({ id: d.id, ...d.data() }));
+      const list = document.getElementById('suggestList');
+      document.getElementById('suggestCount').textContent = items.length;
+      if (items.length === 0) {
+        list.innerHTML = '<div class="empty-admin">Belum ada saran</div>';
+        return;
+      }
+      list.innerHTML = items.map(item => `
+        <div class="suggest-item">
+          <span>${item.text}</span>
+          <button data-id="${item.id}">🗑️</button>
+        </div>
+      `).join('');
+      list.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          await deleteDoc(doc(db, 'suggestions', btn.dataset.id));
+          showToast('🗑️ Saran dihapus');
+        });
+      });
+    }, (error) => {
+      console.error('❌ Gagal memuat saran:', error);
+    });
+  }
+
+  // ===== PASSWORD GATE =====
+  const ADMIN_PASSWORD = 'admin234';
+  async function startAdminApp() {
+    document.getElementById('lockOverlay').remove();
+    document.getElementById('adminApp').style.display = 'block';
+    try {
+      await loadRooms();
+      loadLocal();
+      listenSuggestions();
+      console.log('🏁 Admin siap');
+    } catch (error) {
+      console.error('❌ Error saat startup:', error);
+      showToast('⚠️ Error startup: ' + error.message);
+    }
+  }
+  function tryUnlock() {
+    const val = document.getElementById('lockPassInput').value;
+    if (val === ADMIN_PASSWORD) {
+      sessionStorage.setItem('adminAuthed', '1');
+      startAdminApp();
+    } else {
+      document.getElementById('lockError').textContent = '⚠️ Password salah';
+    }
+  }
+  document.getElementById('lockSubmitBtn').addEventListener('click', tryUnlock);
+  document.getElementById('lockPassInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') tryUnlock(); });
+
+  if (sessionStorage.getItem('adminAuthed') === '1') {
+    startAdminApp();
   }
 </script>
 </body>
