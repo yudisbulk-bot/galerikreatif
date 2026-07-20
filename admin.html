@@ -132,13 +132,17 @@
 </div>
 <div id="toast" class="toast">✅ Tersimpan</div>
 
+<!-- IMPORTMAP DIPERBAIKI (termasuk storage) -->
 <script type="importmap">
 {
   "imports": {
-    "firebase/": "https://www.gstatic.com/firebasejs/12.16.0/firebase-"
+    "firebase/app": "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js",
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js",
+    "firebase/storage": "https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js"
   }
 }
 </script>
+
 <script type="module">
   import { initializeApp } from "firebase/app";
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot, query, orderBy } from "firebase/firestore";
@@ -253,7 +257,6 @@
     }
   }
 
-  // Pointer events: satu API untuk mouse, touch, dan stylus (lebih stabil di HP)
   canvas.style.touchAction = 'none';
   canvas.addEventListener('pointerdown', (e) => { canvas.setPointerCapture(e.pointerId); startDraw(e); });
   canvas.addEventListener('pointermove', draw);
