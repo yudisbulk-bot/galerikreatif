@@ -133,7 +133,7 @@
   const db = getFirestore(app);
 
   // ========== STATE ==========
-  let localData = [];           // { src, caption, description }
+  let localData = [];
   let rooms = [];
   let drawingHistory = [];
   let isDrawing = false;
@@ -160,6 +160,27 @@
     if (pct >= 100) {
       setTimeout(() => { progressBar.style.display = 'none'; progressFill.style.width = '0%'; }, 1000);
     }
+  }
+
+  // ========== UPLOAD KE IMGUR ==========
+  async function uploadToImgur(base64Image) {
+    // Hapus prefix "data:image/png;base64,"
+    const raw = base64Image.split(',')[1];
+    const formData = new FormData();
+    formData.append('image', raw);
+    formData.append('type', 'base64');
+
+    const response = await fetch('https://api.imgur.com/3/image', {
+      method: 'POST',
+      headers: { 'Authorization': 'Client-ID 546c25a59c58ad7' },
+      body: formData
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.data?.error || 'Gagal upload ke Imgur');
+    }
+    const data = await response.json();
+    return data.data.link;
   }
 
   // ========== WHITEBOARD ==========
@@ -241,12 +262,15 @@
     }
   });
 
-  document.getElementById('saveDrawingBtn').addEventListener('click', () => {
+  // ========== SAVE DRAWING ==========
+  document.getElementById('saveDrawingBtn').addEventListener('click', async () => {
     const dataUrl = canvas.toDataURL();
     const caption = prompt('Judul karya:', 'Gambar whiteboard');
+    if (caption === null) return;
     const desc = prompt('Deskripsi:', '');
-    // Upload ke Imgur dulu
-    uploadToImgur(dataUrl).then(imgUrl => {
+    try {
+      showToast('⏳ Upload ke Imgur...');
+      const imgUrl = await uploadToImgur(dataUrl);
       localData.push({
         src: imgUrl,
         caption: caption || 'Gambar whiteboard',
@@ -254,29 +278,10 @@
       });
       saveLocal();
       showToast('✅ Gambar ditambahkan ke daftar!');
-    }).catch(err => {
-      showToast('⚠️ Gagal upload ke Imgur: ' + err.message);
-    });
-  });
-
-  // ========== UPLOAD KE IMGUR ==========
-  async function uploadToImgur(base64Image) {
-    const formData = new FormData();
-    formData.append('image', base64Image.split(',')[1]);
-    formData.append('type', 'base64');
-
-    const response = await fetch('https://api.imgur.com/3/image', {
-      method: 'POST',
-      headers: { 'Authorization': 'Client-ID 546c25a59c58ad7' },
-      body: formData
-    });
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.data?.error || 'Gagal upload');
+    } catch (error) {
+      showToast('⚠️ ' + error.message);
     }
-    const data = await response.json();
-    return data.data.link;
-  }
+  });
 
   // ========== ROOMS ==========
   async function loadRooms() {

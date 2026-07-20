@@ -14,6 +14,7 @@
     .room-selector { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:12px; }
     .room-btn { padding:8px 20px; border-radius:40px; border:2px solid #ddd; background:#fff; font-weight:600; cursor:pointer; }
     .room-btn.active { border-color:#1a1a1a; background:#1a1a1a; color:#fff; }
+    .room-empty { color:#999; font-size:14px; padding:8px 0; }
     .gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:16px; margin-top:20px; }
     .card { background:#fff; border-radius:20px; overflow:hidden; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.06); transition:0.2s; }
     .card:active { transform:scale(0.97); }
@@ -41,9 +42,11 @@
     <h1>🎨 Galeri Kreatif</h1>
     <p>Lihat karya dari berbagai ruang</p>
     <div class="badge">🔥 Multi-User • Firebase</div>
-    <div class="room-selector" id="roomSelector"></div>
+    <div class="room-selector" id="roomSelector">
+      <span class="room-empty">⏳ Memuat ruang...</span>
+    </div>
   </div>
-  <div id="gallery" class="gallery"><div class="loading">⏳ Memuat...</div></div>
+  <div id="gallery" class="gallery"><div class="loading">⏳ Memuat karya...</div></div>
   <div class="footer"><a href="admin.html">🔐 Admin</a> • Pilih ruang di atas</div>
 </div>
 
@@ -103,12 +106,14 @@
     if (allRooms.length > 0 && !currentRoom) {
       currentRoom = allRooms[0].id;
       listenRoom(currentRoom);
+    } else if (allRooms.length === 0) {
+      galleryEl.innerHTML = `<div class="empty"><span>🏠</span>Belum ada ruang<br><small>Admin belum membuat ruang</small></div>`;
     }
   }
 
   function renderRoomSelector() {
     if (allRooms.length === 0) {
-      roomSelector.innerHTML = `<span style="color:#999;font-size:14px;">Belum ada ruang.</span>`;
+      roomSelector.innerHTML = `<span class="room-empty">🏠 Belum ada ruang. Admin buat dulu.</span>`;
       return;
     }
     let html = '';
@@ -143,7 +148,7 @@
     const room = allRooms.find(r => r.id === roomId);
     const roomName = room ? room.name : roomId;
     if (!data || data.length === 0) {
-      galleryEl.innerHTML = `<div class="empty"><span>🖼️</span>Belum ada karya</div>`;
+      galleryEl.innerHTML = `<div class="empty"><span>🖼️</span>Belum ada karya di ruang ini</div>`;
       return;
     }
     let html = '';
