@@ -32,6 +32,8 @@
     .modal-close { display:block; width:100%; padding:14px; margin-top:16px; background:#1a1a1a; color:#fff; border:none; border-radius:40px; font-weight:600; cursor:pointer; }
     .footer { text-align:center; color:#ccc; margin-top:40px; font-size:13px; }
     .footer a { color:#888; text-decoration:none; font-weight:600; }
+    .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:#fff; padding:12px 28px; border-radius:40px; font-size:14px; opacity:0; transition:0.3s; pointer-events:none; z-index:999; }
+    .toast.show { opacity:1; }
   </style>
 </head>
 <body>
@@ -57,6 +59,8 @@
   </div>
 </div>
 
+<div id="toast" class="toast">✅</div>
+
 <script type="importmap">
 {
   "imports": {
@@ -67,6 +71,8 @@
 <script type="module">
   import { initializeApp } from "firebase/app";
   import { getFirestore, collection, query, orderBy, onSnapshot, getDocs } from "firebase/firestore";
+
+  console.log('🚀 Index module dimulai');
 
   const firebaseConfig = {
     apiKey: "AIzaSyCrhghmAhtTijVNLKw5izsa-7TVCRzd2L4",
@@ -79,9 +85,11 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  console.log('✅ Firebase initialized');
 
   let allRooms = [];
   let currentRoom = null;
+  let unsubscribe = null;
 
   const galleryEl = document.getElementById('gallery');
   const roomSelector = document.getElementById('roomSelector');
@@ -90,17 +98,39 @@
   const modalTitle = document.getElementById('modalTitle');
   const modalDesc = document.getElementById('modalDesc');
   const closeModal = document.getElementById('closeModal');
+  const toast = document.getElementById('toast');
+
+  function showToast(msg) {
+    console.log('📢 Toast:', msg);
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+  }
 
   async function loadRooms() {
-    const snapshot = await getDocs(collection(db, 'rooms'));
-    allRooms = [];
-    snapshot.forEach(doc => allRooms.push({ id: doc.id, ...doc.data() }));
-    renderRoomSelector();
-    if (allRooms.length > 0 && !currentRoom) {
-      currentRoom = allRooms[0].id;
-      listenRoom(currentRoom);
-    } else if (allRooms.length === 0) {
-      galleryEl.innerHTML = `<div class="empty"><span>🏠</span>Belum ada ruang</div>`;
+    console.log('📂 Memuat daftar ruang...');
+    try {
+      const snapshot = await getDocs(collection(db, 'rooms'));
+      allRooms = [];
+      snapshot.forEach(doc => allRooms.push({ id: doc.id, ...doc.data() }));
+      console.log(`✅ ${allRooms.length} ruang dimuat`);
+      renderRoomSelector();
+      if (allRooms.length > 0) {
+        // Pilih ruang pertama secara default
+        currentRoom = allRooms[0].id;
+        listenRoom(currentRoom);
+        // Tandai tombol pertama sebagai aktif
+        document.querySelectorAll('.room-btn').forEach((btn, idx) => {
+          if (idx === 0) btn.classList.add('active');
+        });
+      } else {
+        galleryEl.innerHTML = `<div class="empty"><span>🏠</span>Belum ada ruang</div>`;
+      }
+    } catch (error) {
+      console.error('❌ Gagal memuat ruang:', error);
+      galleryEl.innerHTML = `<div class="empty"><span>⚠️</span>${error.message}</div>`;
+      showToast('⚠️ Gagal memuat ruang: ' + error.message);
     }
   }
 
@@ -118,6 +148,7 @@
     document.querySelectorAll('.room-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const roomId = btn.dataset.room;
+        console.log('🔄 Pindah ke ruang:', roomId);
         currentRoom = roomId;
         listenRoom(roomId);
         document.querySelectorAll('.room-btn').forEach(b => b.classList.remove('active'));
@@ -127,13 +158,22 @@
   }
 
   function listenRoom(roomId) {
+    console.log('👂 Mendengarkan ruang:', roomId);
+    // Unsubscribe dari listener sebelumnya
+    if (unsubscribe) {
+      unsubscribe();
+      unsubscribe = null;
+    }
     const q = query(collection(db, 'rooms', roomId, 'karya'), orderBy('createdAt', 'desc'));
-    onSnapshot(q, (snapshot) => {
+    unsubscribe = onSnapshot(q, (snapshot) => {
       const data = [];
       snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+      console.log(`📦 ${data.length} karya diterima dari ${roomId}`);
       renderGallery(data, roomId);
     }, (error) => {
+      console.error('❌ Error snapshot:', error);
       galleryEl.innerHTML = `<div class="empty"><span>⚠️</span>${error.message}</div>`;
+      showToast('⚠️ Error: ' + error.message);
     });
   }
 
@@ -168,7 +208,14 @@
   closeModal.addEventListener('click', () => modal.classList.remove('active'));
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
-  loadRooms();
+  // ===== START =====
+  try {
+    await loadRooms();
+    console.log('🏁 Index siap');
+  } catch (error) {
+    console.error('❌ Error startup:', error);
+    galleryEl.innerHTML = `<div class="empty"><span>⚠️</span>${error.message}</div>`;
+  }
 </script>
 </body>
 </html>

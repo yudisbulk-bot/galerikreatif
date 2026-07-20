@@ -111,6 +111,8 @@
   import { initializeApp } from "firebase/app";
   import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
 
+  console.log('🚀 Admin module dimulai');
+
   const firebaseConfig = {
     apiKey: "AIzaSyCrhghmAhtTijVNLKw5izsa-7TVCRzd2L4",
     authDomain: "galeri-kreatif.firebaseapp.com",
@@ -121,6 +123,7 @@
   };
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  console.log('✅ Firebase initialized');
 
   let localData = [];
   let rooms = [];
@@ -135,6 +138,7 @@
   const progressFill = document.getElementById('progressFill');
 
   function showToast(msg) {
+    console.log('📢 Toast:', msg);
     toast.textContent = msg;
     toast.classList.add('show');
     clearTimeout(toast._timer);
@@ -151,22 +155,29 @@
 
   // ===== UPLOAD KE IMGUR =====
   async function uploadToImgur(base64Image) {
-    const raw = base64Image.split(',')[1];
-    const formData = new FormData();
-    formData.append('image', raw);
-    formData.append('type', 'base64');
+    console.log('📤 Upload ke Imgur...');
+    try {
+      const raw = base64Image.split(',')[1];
+      const formData = new FormData();
+      formData.append('image', raw);
+      formData.append('type', 'base64');
 
-    const response = await fetch('https://api.imgur.com/3/image', {
-      method: 'POST',
-      headers: { 'Authorization': 'Client-ID 546c25a59c58ad7' },
-      body: formData
-    });
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.data?.error || 'Gagal upload ke Imgur');
+      const response = await fetch('https://api.imgur.com/3/image', {
+        method: 'POST',
+        headers: { 'Authorization': 'Client-ID 546c25a59c58ad7' },
+        body: formData
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.data?.error || 'Gagal upload ke Imgur');
+      }
+      const data = await response.json();
+      console.log('✅ Imgur sukses:', data.data.link);
+      return data.data.link;
+    } catch (err) {
+      console.error('❌ Imgur error:', err);
+      throw err;
     }
-    const data = await response.json();
-    return data.data.link;
   }
 
   // ===== WHITEBOARD =====
@@ -250,27 +261,36 @@
 
   // ===== SAVE DRAWING =====
   document.getElementById('saveDrawingBtn').addEventListener('click', async () => {
-    const dataUrl = canvas.toDataURL();
-    const caption = prompt('Judul:', 'Gambar whiteboard');
-    if (caption === null) return;
-    const desc = prompt('Deskripsi:', '');
+    console.log('🖌️ Save drawing diklik');
     try {
+      const dataUrl = canvas.toDataURL();
+      const caption = prompt('Judul:', 'Gambar whiteboard');
+      if (caption === null) return;
+      const desc = prompt('Deskripsi:', '');
       showToast('⏳ Upload ke Imgur...');
       const imgUrl = await uploadToImgur(dataUrl);
       localData.push({ src: imgUrl, caption: caption, description: desc || '' });
       saveLocal();
       showToast('✅ Ditambahkan!');
     } catch (error) {
+      console.error('❌ Gagal simpan drawing:', error);
       showToast('⚠️ ' + error.message);
     }
   });
 
   // ===== ROOMS =====
   async function loadRooms() {
-    const snapshot = await getDocs(collection(db, 'rooms'));
-    rooms = [];
-    snapshot.forEach(doc => rooms.push({ id: doc.id, ...doc.data() }));
-    renderRoomSelect();
+    console.log('📂 Memuat daftar ruang...');
+    try {
+      const snapshot = await getDocs(collection(db, 'rooms'));
+      rooms = [];
+      snapshot.forEach(doc => rooms.push({ id: doc.id, ...doc.data() }));
+      console.log(`✅ ${rooms.length} ruang dimuat`);
+      renderRoomSelect();
+    } catch (error) {
+      console.error('❌ Gagal memuat ruang:', error);
+      showToast('⚠️ Gagal memuat ruang: ' + error.message);
+    }
   }
 
   function renderRoomSelect() {
@@ -280,35 +300,56 @@
       select.innerHTML += `<option value="${room.id}">${room.name || room.id}</option>`;
     });
     if (rooms.length > 0) select.value = rooms[0].id;
+    console.log('🔄 Room select diperbarui, opsi:', rooms.length);
   }
 
   document.getElementById('createRoomBtn').addEventListener('click', async () => {
-    const name = document.getElementById('roomNameInput').value.trim() || 'Ruang Baru';
+    console.log('🏠 Tombol Buat Ruang diklik');
     try {
+      const name = document.getElementById('roomNameInput').value.trim() || 'Ruang Baru';
+      console.log('📝 Nama ruang:', name);
       const docRef = await addDoc(collection(db, 'rooms'), { name, createdAt: new Date() });
+      console.log('✅ Ruang dibuat dengan ID:', docRef.id);
       showToast(`✅ Ruang "${name}" dibuat!`);
       document.getElementById('roomNameInput').value = '';
       document.getElementById('roomInfo').innerHTML = `<div style="background:#f5f3f0;padding:10px 16px;border-radius:14px;font-size:14px;">🔑 Kode: ${docRef.id}</div>`;
       await loadRooms();
       document.getElementById('roomSelect').value = docRef.id;
     } catch (error) {
+      console.error('❌ Gagal buat ruang:', error);
       showToast('⚠️ Gagal: ' + error.message);
     }
   });
 
   // ===== LOCAL DATA =====
   function loadLocal() {
-    const stored = localStorage.getItem('galleryLocal');
-    if (stored) {
-      try { localData = JSON.parse(stored); } catch(e) { localData = []; }
-    } else { localData = []; }
+    console.log('💾 Memuat data lokal...');
+    try {
+      const stored = localStorage.getItem('galleryLocal');
+      if (stored) {
+        localData = JSON.parse(stored);
+        console.log(`✅ ${localData.length} karya dimuat dari localStorage`);
+      } else {
+        localData = [];
+        console.log('ℹ️ Tidak ada data lokal');
+      }
+    } catch(e) {
+      console.error('❌ Gagal parse localStorage:', e);
+      localData = [];
+    }
     renderAdmin();
   }
 
   function saveLocal() {
-    localStorage.setItem('galleryLocal', JSON.stringify(localData));
-    renderAdmin();
-    document.getElementById('count').textContent = localData.length;
+    console.log('💾 Menyimpan ke localStorage...');
+    try {
+      localStorage.setItem('galleryLocal', JSON.stringify(localData));
+      renderAdmin();
+      document.getElementById('count').textContent = localData.length;
+      console.log(`✅ ${localData.length} karya tersimpan`);
+    } catch(e) {
+      console.error('❌ Gagal simpan localStorage:', e);
+    }
   }
 
   function renderAdmin() {
@@ -361,48 +402,59 @@
 
   // ===== UPLOAD FILE =====
   document.getElementById('uploadFileBtn').addEventListener('click', async () => {
-    const fileInput = document.getElementById('imageInput');
-    const caption = document.getElementById('captionInput').value.trim() || 'Karya';
-    const description = document.getElementById('descInput').value.trim();
+    console.log('📤 Tombol Upload File diklik');
+    try {
+      const fileInput = document.getElementById('imageInput');
+      const caption = document.getElementById('captionInput').value.trim() || 'Karya';
+      const description = document.getElementById('descInput').value.trim();
 
-    if (!fileInput.files || fileInput.files.length === 0) {
-      showToast('⚠️ Pilih gambar');
-      return;
-    }
-
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      try {
-        setProgress(20);
-        showToast('⏳ Upload ke Imgur...');
-        const imgUrl = await uploadToImgur(e.target.result);
-        setProgress(80);
-        localData.push({ src: imgUrl, caption: caption, description: description || '' });
-        saveLocal();
-        fileInput.value = '';
-        document.getElementById('captionInput').value = '';
-        document.getElementById('descInput').value = '';
-        setProgress(100);
-        showToast('✅ Ditambahkan!');
-      } catch (error) {
-        showToast('⚠️ ' + error.message);
-        setProgress(0);
-        progressBar.style.display = 'none';
+      if (!fileInput.files || fileInput.files.length === 0) {
+        showToast('⚠️ Pilih gambar');
+        return;
       }
-    };
-    reader.readAsDataURL(file);
+
+      const file = fileInput.files[0];
+      console.log('📁 File:', file.name, file.size);
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          setProgress(20);
+          showToast('⏳ Upload ke Imgur...');
+          const imgUrl = await uploadToImgur(e.target.result);
+          setProgress(80);
+          localData.push({ src: imgUrl, caption: caption, description: description || '' });
+          saveLocal();
+          fileInput.value = '';
+          document.getElementById('captionInput').value = '';
+          document.getElementById('descInput').value = '';
+          setProgress(100);
+          showToast('✅ Ditambahkan!');
+          console.log('✅ File berhasil diupload dan ditambahkan');
+        } catch (error) {
+          console.error('❌ Gagal upload file:', error);
+          showToast('⚠️ ' + error.message);
+          setProgress(0);
+          progressBar.style.display = 'none';
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('❌ Gagal:', error);
+      showToast('⚠️ ' + error.message);
+    }
   });
 
   // ===== PUBLISH =====
   document.getElementById('publishBtn').addEventListener('click', async () => {
-    const roomId = document.getElementById('roomSelect').value;
-    if (!roomId) { showToast('⚠️ Pilih ruang'); return; }
-    if (localData.length === 0) { showToast('⚠️ Belum ada karya'); return; }
-
+    console.log('🚀 Tombol Publish diklik');
     try {
+      const roomId = document.getElementById('roomSelect').value;
+      if (!roomId) { showToast('⚠️ Pilih ruang'); return; }
+      if (localData.length === 0) { showToast('⚠️ Belum ada karya'); return; }
+
       showToast('⏳ Mempublish ke server...');
       const karyaRef = collection(db, 'rooms', roomId, 'karya');
+      let count = 0;
       for (const item of localData) {
         await addDoc(karyaRef, {
           src: item.src,
@@ -410,16 +462,26 @@
           description: item.description || '',
           createdAt: new Date()
         });
+        count++;
+        console.log(`📤 ${count}/${localData.length} karya dipublish`);
       }
       showToast(`✅ ${localData.length} karya dipublish!`);
+      console.log(`✅ Selesai publish ${localData.length} karya`);
     } catch (error) {
+      console.error('❌ Gagal publish:', error);
       showToast('⚠️ Gagal: ' + error.message);
     }
   });
 
   // ===== START =====
-  await loadRooms();
-  loadLocal();
+  try {
+    await loadRooms();
+    loadLocal();
+    console.log('🏁 Admin siap');
+  } catch (error) {
+    console.error('❌ Error saat startup:', error);
+    showToast('⚠️ Error startup: ' + error.message);
+  }
 </script>
 </body>
 </html>
