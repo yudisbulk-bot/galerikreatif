@@ -85,7 +85,7 @@
     </div>
   </div>
 
-  <!-- Daftar Karya (langsung dari database) -->
+  <!-- Daftar Karya -->
   <div class="section">
     <h2>📚 Daftar Karya (<span id="count">0</span>)</h2>
     <div id="adminGallery" class="gallery-admin"><div class="empty-admin">Belum ada</div></div>
@@ -94,7 +94,6 @@
 
 <div id="toast" class="toast">✅ Tersimpan</div>
 
-<!-- IMPORTMAP -->
 <script type="importmap">
 {
   "imports": {
@@ -110,8 +109,6 @@
   import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
   import { getStorage, ref, uploadString, getDownloadURL } from "firebase/storage";
 
-  console.log('🚀 Admin module dimulai');
-
   const firebaseConfig = {
     apiKey: "AIzaSyCrhghmAhtTijVNLKw5izsa-7TVCRzd2L4",
     authDomain: "galeri-kreatif.firebaseapp.com",
@@ -123,14 +120,12 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const storage = getStorage(app);
-  console.log('✅ Firebase initialized');
+  console.log('✅ Firebase siap');
 
-  // ===== ELEMEN =====
   const toast = document.getElementById('toast');
   const progressBar = document.getElementById('progressBar');
   const progressFill = document.getElementById('progressFill');
 
-  // ===== TOAST =====
   let toastTimer;
   function showToast(msg) {
     toast.textContent = msg;
@@ -147,25 +142,23 @@
     }
   }
 
-  // ===== UPLOAD KE FIREBASE STORAGE =====
-  async function uploadToStorage(base64Image) {
-    console.log('📤 Upload ke Firebase Storage...');
-    try {
-      const path = `karya/${Date.now()}_${Math.random().toString(36).slice(2)}.png`;
-      const storageRef = ref(storage, path);
-      await uploadString(storageRef, base64Image, 'data_url');
-      const url = await getDownloadURL(storageRef);
-      console.log('✅ Storage sukses:', url);
-      return url;
-    } catch (err) {
-      console.error('❌ Storage error:', err);
-      throw err;
+  async function uploadToStorage(base64Image, retry = 3) {
+    for (let i = 0; i < retry; i++) {
+      try {
+        const path = `karya/${Date.now()}_${Math.random().toString(36).slice(2)}.png`;
+        const storageRef = ref(storage, path);
+        await uploadString(storageRef, base64Image, 'data_url');
+        return await getDownloadURL(storageRef);
+      } catch (err) {
+        console.warn(`⚠️ Upload retry ${i+1}/${retry}:`, err.message);
+        if (i === retry - 1) throw err;
+        await new Promise(r => setTimeout(r, 2000));
+      }
     }
   }
 
-  // ===== UPLOAD FILE =====
+  // Upload file
   document.getElementById('uploadFileBtn').addEventListener('click', async () => {
-    console.log('📤 Tombol Upload File diklik');
     try {
       const fileInput = document.getElementById('imageInput');
       const caption = document.getElementById('captionInput').value.trim() || 'Karya';
@@ -177,23 +170,19 @@
       }
 
       const file = fileInput.files[0];
-      console.log('📁 File:', file.name, file.size);
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
-          setProgress(20);
+          setProgress(30);
           showToast('⏳ Upload...');
           const imgUrl = await uploadToStorage(e.target.result);
-          setProgress(80);
-          
-          // SIMPAN LANGSUNG KE FIRESTORE
+          setProgress(70);
           await addDoc(collection(db, 'karya'), {
             src: imgUrl,
-            caption: caption,
+            caption,
             description: description || '',
             createdAt: new Date()
           });
-
           fileInput.value = '';
           document.getElementById('captionInput').value = '';
           document.getElementById('descInput').value = '';
@@ -213,7 +202,7 @@
     }
   });
 
-  // ===== WHITEBOARD =====
+  // Whiteboard
   const canvas = document.getElementById('whiteboardCanvas');
   const ctx = canvas.getContext('2d');
   let drawingHistory = [];
@@ -297,9 +286,7 @@
     }
   });
 
-  // ===== SAVE DRAWING =====
   document.getElementById('saveDrawingBtn').addEventListener('click', async () => {
-    console.log('🖌️ Save drawing diklik');
     try {
       const dataUrl = canvas.toDataURL();
       const caption = prompt('Judul:', 'Gambar whiteboard');
@@ -307,15 +294,12 @@
       const desc = prompt('Deskripsi:', '');
       showToast('⏳ Upload...');
       const imgUrl = await uploadToStorage(dataUrl);
-      
-      // SIMPAN LANGSUNG KE FIRESTORE
       await addDoc(collection(db, 'karya'), {
         src: imgUrl,
-        caption: caption,
+        caption,
         description: desc || '',
         createdAt: new Date()
       });
-      
       showToast('✅ Berhasil ditambahkan!');
     } catch (error) {
       console.error('❌ Gagal simpan drawing:', error);
@@ -323,14 +307,12 @@
     }
   });
 
-  // ===== LISTENER DATABASE (Realtime) =====
+  // Listener database
   function listenKarya() {
-    console.log('👂 Mendengarkan koleksi karya...');
     const q = query(collection(db, 'karya'), orderBy('createdAt', 'desc'));
     onSnapshot(q, (snapshot) => {
       const data = [];
       snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
-      console.log(`📦 ${data.length} karya diterima`);
       renderAdminGallery(data);
       document.getElementById('count').textContent = data.length;
     }, (error) => {
@@ -338,7 +320,6 @@
     });
   }
 
-  // ===== ADMIN GALLERY (edit & hapus langsung) =====
   function renderAdminGallery(data) {
     const container = document.getElementById('adminGallery');
     if (data.length === 0) {
@@ -346,7 +327,7 @@
       return;
     }
     let html = '';
-    data.forEach((item, idx) => {
+    data.forEach((item) => {
       html += `
         <div class="admin-card">
           <img src="${item.src}" alt="${item.caption}" loading="lazy">
@@ -360,7 +341,6 @@
     });
     container.innerHTML = html;
 
-    // Edit
     container.querySelectorAll('.btn-edit').forEach(btn => {
       btn.addEventListener('click', async () => {
         const id = btn.dataset.id;
@@ -378,7 +358,6 @@
       });
     });
 
-    // Hapus
     container.querySelectorAll('.btn-del').forEach(btn => {
       btn.addEventListener('click', async () => {
         if (!confirm('Hapus karya ini?')) return;
@@ -393,7 +372,6 @@
     });
   }
 
-  // ===== START =====
   listenKarya();
   console.log('🏁 Admin siap');
 </script>
