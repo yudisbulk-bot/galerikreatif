@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🎨 Galeri Kreatif</title>
+  <title>🎨 Galeri Kreatif + Admin</title>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; font-family:system-ui; }
     body { background:#f8f6f2; padding:16px; }
     .container { max-width:700px; margin:0 auto; }
+
+    /* --- Bagian Publik --- */
     .header { text-align:center; padding:24px 0 16px; }
     .header h1 { font-size:32px; font-weight:800; }
     .badge { background:#1a1a1a; color:#fff; padding:6px 16px; border-radius:40px; font-size:12px; display:inline-block; margin-top:8px; }
@@ -30,17 +32,61 @@
     .modal-content h2 { font-size:22px; margin-bottom:8px; }
     .modal-content .desc { background:#f5f3f0; padding:14px 16px; border-radius:14px; white-space:pre-wrap; }
     .modal-close { display:block; width:100%; padding:14px; margin-top:16px; background:#1a1a1a; color:#fff; border:none; border-radius:40px; font-weight:600; cursor:pointer; }
-    .footer { text-align:center; color:#ccc; margin-top:40px; font-size:13px; }
+    .footer { text-align:center; color:#ccc; margin-top:40px; font-size:13px; display:flex; justify-content:center; gap:20px; flex-wrap:wrap; }
     .footer a { color:#888; text-decoration:none; font-weight:600; }
     .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:#fff; padding:12px 28px; border-radius:40px; font-size:14px; opacity:0; transition:0.3s; pointer-events:none; z-index:999; }
     .toast.show { opacity:1; }
 
+    /* --- Tombol Admin di footer --- */
+    .admin-toggle { background:none; border:none; color:#888; font-weight:600; cursor:pointer; font-size:13px; }
+
+    /* --- Bagian Admin (awalnya tersembunyi) --- */
+    #adminPanel { display:none; margin-top:40px; border-top:2px solid #ddd; padding-top:30px; }
+    #adminPanel.active { display:block; }
+
+    /* Gaya admin (dari admin.html) */
+    .section { background:#fff; border-radius:24px; padding:20px; margin-bottom:20px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
+    .section h2 { font-size:18px; margin-bottom:14px; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; }
+    .row input, .row textarea { flex:1; padding:12px 16px; border:2px solid #eee; border-radius:14px; font-size:14px; font-family:inherit; min-width:120px; }
+    .row textarea { min-height:60px; resize:vertical; }
+    .btn { padding:12px 24px; border:none; border-radius:40px; font-weight:600; cursor:pointer; background:#1a1a1a; color:#fff; }
+    .btn:active { transform:scale(0.95); }
+    .btn-success { background:#34c759; }
+    .btn-danger { background:#ff4d4d; }
+    .btn-secondary { background:#f0f0f0; color:#333; }
+    .canvas-wrapper { background:#fafafa; border-radius:16px; overflow:hidden; border:2px dashed #ddd; margin-top:8px; }
+    #whiteboardCanvas { width:100%; height:auto; aspect-ratio:4/3; display:block; touch-action:none; cursor:crosshair; background:white; }
+    .canvas-tools { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .canvas-tools button { padding:10px 16px; border:none; border-radius:40px; font-weight:600; cursor:pointer; flex:1; min-width:60px; }
+    .canvas-tools button:active { transform:scale(0.95); }
+    .upload-area { display:flex; flex-direction:column; gap:10px; }
+    .upload-area input[type="file"] { padding:12px; border:2px dashed #ddd; border-radius:16px; background:#fafafa; }
+    .gallery-admin { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-top:16px; }
+    .admin-card { background:#fff; border-radius:16px; overflow:hidden; border:2px solid #eee; }
+    .admin-card img { width:100%; height:130px; object-fit:cover; display:block; }
+    .admin-card .info { padding:10px 12px; font-weight:600; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .admin-card .actions { display:flex; gap:6px; padding:0 12px 12px; }
+    .admin-card .actions button { flex:1; padding:6px; border:none; border-radius:30px; font-size:12px; font-weight:600; cursor:pointer; }
+    .btn-edit { background:#f0f0f0; }
+    .btn-del { background:#ff4d4d; color:#fff; }
+    .empty-admin { text-align:center; color:#bbb; padding:30px 0; grid-column:1/-1; }
+    .publish-btn { width:100%; padding:14px; border:none; border-radius:40px; font-size:16px; font-weight:700; background:#34c759; color:#fff; cursor:pointer; }
+    .publish-btn:active { transform:scale(0.97); }
+    .progress-bar { width:100%; height:6px; background:#eee; border-radius:4px; margin-top:8px; overflow:hidden; display:none; }
+    .progress-bar .fill { height:100%; background:#34c759; width:0%; transition:width 0.3s; }
+    select { padding:12px; border:2px solid #eee; border-radius:14px; font-size:14px; width:100%; margin-bottom:12px; background:white; }
+    .color-row { display:flex; gap:8px; align-items:center; margin-top:10px; }
+    .color-row input[type="color"] { width:40px; height:36px; border:none; border-radius:10px; padding:0; }
+    .color-row input[type="range"] { flex:1; }
+    .suggest-item { background:#f5f3f0; border-radius:14px; padding:12px 16px; margin-bottom:10px; font-size:14px; display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+    .suggest-item button { border:none; background:#ff4d4d; color:#fff; border-radius:30px; padding:6px 10px; font-size:12px; cursor:pointer; flex-shrink:0; }
+
+    /* --- FAB Saran & Follow (tetap ada) --- */
     .fab-suggest { position:fixed; top:16px; right:16px; z-index:900; background:#1a1a1a; color:#fff; border:none; border-radius:40px; padding:10px 16px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.2); }
     .fab-suggest:active { transform:scale(0.95); }
-
     .fab-follow { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:900; background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; border:none; border-radius:40px; padding:10px 18px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.25); text-decoration:none; display:inline-block; }
     .fab-follow:active { transform:translateX(-50%) scale(0.95); }
-
     .popup-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); display:none; justify-content:center; align-items:center; padding:20px; z-index:2000; }
     .popup-overlay.active { display:flex; }
     .popup-box { background:#fff; border-radius:24px; max-width:420px; width:100%; padding:24px; max-height:90vh; overflow-y:auto; position:relative; }
@@ -48,36 +94,102 @@
     .popup-box textarea { width:100%; min-height:100px; padding:12px 14px; border:2px solid #eee; border-radius:14px; font-family:inherit; font-size:14px; resize:vertical; }
     .popup-box .btn { width:100%; margin-top:12px; padding:12px; border:none; border-radius:40px; background:#1a1a1a; color:#fff; font-weight:700; cursor:pointer; }
     .popup-close-x { position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; cursor:pointer; color:#999; }
-
     .ad-section { border-top:1px solid #eee; margin-top:16px; padding-top:16px; }
     .ad-section:first-child { border-top:none; margin-top:0; padding-top:0; }
     .ad-follow-btn { display:block; text-align:center; background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color:#fff; padding:12px; border-radius:40px; font-weight:700; text-decoration:none; margin-top:10px; }
     .ad-donate-box { background:#f5f3f0; border-radius:14px; padding:14px 16px; margin-top:10px; font-size:14px; }
-
-    .admin-toggle { background:none; border:none; color:#888; font-weight:600; cursor:pointer; font-size:13px; }
-    .card { position:relative; }
-    .card .admin-actions { display:none; position:absolute; top:8px; right:8px; gap:6px; z-index:10; }
-    body.admin-mode .card .admin-actions { display:flex; }
-    .card .admin-actions button { border:none; border-radius:30px; padding:6px 10px; font-size:12px; font-weight:700; cursor:pointer; }
-    .card .admin-actions .a-edit { background:#fff; }
-    .card .admin-actions .a-del { background:#ff4d4d; color:#fff; }
   </style>
 </head>
 <body>
+
 <div class="container">
+  <!-- HEADER PUBLIK -->
   <div class="header">
     <h1>🎨 Galeri Kreatif</h1>
     <p>Lihat karya dari berbagai ruang</p>
     <div class="badge">🔥 Firebase • Server</div>
     <div class="room-selector" id="roomSelector"></div>
   </div>
+
+  <!-- GALERI PUBLIK -->
   <div id="gallery" class="gallery"><div class="loading">⏳ Memuat...</div></div>
-  <div class="footer"><button class="admin-toggle" id="adminToggleBtn">🔐 Mode Admin</button> · <a href="admin.html">Buka Panel Admin</a></div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <button class="admin-toggle" id="adminToggleBtn">🔐 Mode Admin</button>
+    <span>·</span>
+    <a href="#" id="adminPanelLink">Panel Admin</a>
+  </div>
+
+  <!-- PANEL ADMIN (tersembunyi) -->
+  <div id="adminPanel">
+    <!-- Buat Ruang -->
+    <div class="section">
+      <h2>🏠 Buat Ruang</h2>
+      <div class="row">
+        <input type="text" id="roomNameInput" placeholder="Nama ruang">
+        <button class="btn" id="createRoomBtn">➕ Buat</button>
+      </div>
+      <div id="roomInfo" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- Whiteboard -->
+    <div class="section">
+      <h2>✏️ Whiteboard</h2>
+      <div class="canvas-wrapper">
+        <canvas id="whiteboardCanvas" width="600" height="450"></canvas>
+      </div>
+      <div class="color-row">
+        <input type="color" id="brushColor" value="#1a1a1a">
+        <input type="range" id="brushSize" min="1" max="30" value="4">
+      </div>
+      <div class="canvas-tools">
+        <button class="btn-success" id="saveDrawingBtn">💾 Simpan</button>
+        <button class="btn-danger" id="clearCanvasBtn">🗑️ Hapus</button>
+        <button class="btn-secondary" id="undoCanvasBtn">↩️ Undo</button>
+      </div>
+    </div>
+
+    <!-- Upload File -->
+    <div class="section">
+      <h2>📤 Upload File</h2>
+      <div class="upload-area">
+        <input type="file" id="imageInput" accept="image/*">
+        <div class="row">
+          <input type="text" id="captionInput" placeholder="Judul">
+          <textarea id="descInput" placeholder="Deskripsi"></textarea>
+        </div>
+        <button class="btn" id="uploadFileBtn">➕ Tambah</button>
+        <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
+      </div>
+    </div>
+
+    <!-- Daftar Karya Lokal (admin) -->
+    <div class="section">
+      <h2>📚 Daftar Karya (<span id="count">0</span>)</h2>
+      <div id="adminGallery" class="gallery-admin"><div class="empty-admin">Belum ada</div></div>
+    </div>
+
+    <!-- Publish -->
+    <div class="section">
+      <h2>🚀 Publish ke Server</h2>
+      <select id="roomSelect"><option value="">Pilih ruang...</option></select>
+      <button class="publish-btn" id="publishBtn">📤 Publish ke Server</button>
+    </div>
+
+    <!-- Kotak Saran (admin) -->
+    <div class="section">
+      <h2>📮 Kotak Saran (<span id="suggestCount">0</span>)</h2>
+      <div id="suggestList"><div class="empty-admin">Belum ada saran</div></div>
+    </div>
+  </div>
 </div>
 
+<!-- FAB Saran & Follow -->
 <button class="fab-suggest" id="openSuggestBtn">💬 Kotak Saran</button>
 <a class="fab-follow" href="https://www.instagram.com/yudisbulkdesain" target="_blank" rel="noopener">❤️ Follow @yudisbulkdesain</a>
 
+<!-- Popup Saran -->
 <div class="popup-overlay" id="suggestOverlay">
   <div class="popup-box">
     <button class="popup-close-x" id="closeSuggest">✕</button>
@@ -88,6 +200,7 @@
   </div>
 </div>
 
+<!-- Popup Iklan -->
 <div class="popup-overlay" id="adOverlay">
   <div class="popup-box">
     <button class="popup-close-x" id="closeAd">✕</button>
@@ -107,6 +220,7 @@
   </div>
 </div>
 
+<!-- Modal Detail Karya -->
 <div class="modal" id="detailModal">
   <div class="modal-box">
     <img id="modalImage" src="">
@@ -118,6 +232,7 @@
   </div>
 </div>
 
+<!-- Toast -->
 <div id="toast" class="toast">✅</div>
 
 <!-- IMPORTMAP DIPERBAIKI -->
@@ -125,7 +240,8 @@
 {
   "imports": {
     "firebase/app": "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js",
-    "firebase/firestore": "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js"
+    "firebase/firestore": "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js",
+    "firebase/storage": "https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js"
   }
 }
 </script>
@@ -133,9 +249,11 @@
 <script type="module">
   import { initializeApp } from "firebase/app";
   import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, addDoc, doc, updateDoc, deleteDoc } from "firebase/firestore";
+  import { getStorage, ref, uploadString, getDownloadURL } from "firebase/storage";
 
-  console.log('🚀 Index module dimulai');
+  console.log('🚀 Aplikasi dimulai (gabungan)');
 
+  // ===== FIREBASE =====
   const firebaseConfig = {
     apiKey: "AIzaSyCrhghmAhtTijVNLKw5izsa-7TVCRzd2L4",
     authDomain: "galeri-kreatif.firebaseapp.com",
@@ -144,15 +262,21 @@
     messagingSenderId: "436229179023",
     appId: "1:436229179023:web:78445a449aaf18d30252fa"
   };
-
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const storage = getStorage(app);
   console.log('✅ Firebase initialized');
 
+  // ===== STATE =====
   let allRooms = [];
   let currentRoom = null;
   let unsubscribe = null;
+  let localData = [];          // data lokal admin
+  let drawingHistory = [];
+  let isDrawing = false;
+  let lastX = 0, lastY = 0;
 
+  // ===== ELEMEN =====
   const galleryEl = document.getElementById('gallery');
   const roomSelector = document.getElementById('roomSelector');
   const modal = document.getElementById('detailModal');
@@ -161,7 +285,10 @@
   const modalDesc = document.getElementById('modalDesc');
   const closeModal = document.getElementById('closeModal');
   const toast = document.getElementById('toast');
+  const adminPanel = document.getElementById('adminPanel');
+  const adminToggleBtn = document.getElementById('adminToggleBtn');
 
+  // ===== TOAST =====
   function showToast(msg) {
     console.log('📢 Toast:', msg);
     toast.textContent = msg;
@@ -170,6 +297,7 @@
     toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
+  // ===== PUBLIK: LOAD ROOMS =====
   async function loadRooms() {
     console.log('📂 Memuat daftar ruang...');
     try {
@@ -247,10 +375,6 @@
     data.forEach((item, i) => {
       html += `
         <div class="card" data-index="${i}">
-          <div class="admin-actions">
-            <button class="a-edit" data-index="${i}">✏️</button>
-            <button class="a-del" data-index="${i}">🗑️</button>
-          </div>
           <img src="${item.src}" alt="${item.caption}" loading="lazy">
           <div class="title">${item.caption || 'Karya'}</div>
         </div>
@@ -259,7 +383,6 @@
     galleryEl.innerHTML = html;
     document.querySelectorAll('.card').forEach((card) => {
       card.addEventListener('click', (e) => {
-        if (e.target.closest('.admin-actions')) return;
         const idx = parseInt(card.dataset.index);
         const item = data[idx];
         modalImg.src = item.src;
@@ -268,66 +391,12 @@
         modal.classList.add('active');
       });
     });
-    document.querySelectorAll('.a-edit').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const idx = parseInt(btn.dataset.index);
-        const item = data[idx];
-        const newCaption = prompt('Judul baru:', item.caption || '');
-        if (newCaption === null) return;
-        const newDesc = prompt('Deskripsi baru (bisa tempel link gambar):', item.description || '');
-        try {
-          await updateDoc(doc(db, 'rooms', roomId, 'karya', item.id), { caption: newCaption, description: newDesc || '' });
-          showToast('✅ Karya diperbarui');
-        } catch (error) {
-          showToast('⚠️ Gagal update: ' + error.message);
-        }
-      });
-    });
-    document.querySelectorAll('.a-del').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const idx = parseInt(btn.dataset.index);
-        const item = data[idx];
-        if (!confirm('Hapus karya ini?')) return;
-        try {
-          await deleteDoc(doc(db, 'rooms', roomId, 'karya', item.id));
-          showToast('🗑️ Karya dihapus');
-        } catch (error) {
-          showToast('⚠️ Gagal hapus: ' + error.message);
-        }
-      });
-    });
   }
 
   closeModal.addEventListener('click', () => modal.classList.remove('active'));
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
-  const ADMIN_PASSWORD = 'admin234';
-  const adminToggleBtn = document.getElementById('adminToggleBtn');
-  function applyAdminUI() {
-    const on = sessionStorage.getItem('adminMode') === '1';
-    document.body.classList.toggle('admin-mode', on);
-    adminToggleBtn.textContent = on ? '🔓 Keluar Mode Admin' : '🔐 Mode Admin';
-  }
-  adminToggleBtn.addEventListener('click', () => {
-    if (sessionStorage.getItem('adminMode') === '1') {
-      sessionStorage.removeItem('adminMode');
-      applyAdminUI();
-      showToast('Mode admin nonaktif');
-      return;
-    }
-    const pass = prompt('Masukkan password admin:');
-    if (pass === ADMIN_PASSWORD) {
-      sessionStorage.setItem('adminMode', '1');
-      applyAdminUI();
-      showToast('✅ Mode admin aktif');
-    } else if (pass !== null) {
-      showToast('⚠️ Password salah');
-    }
-  });
-  applyAdminUI();
-
+  // ===== POPUP SARAN (publik) =====
   const suggestOverlay = document.getElementById('suggestOverlay');
   document.getElementById('openSuggestBtn').addEventListener('click', () => suggestOverlay.classList.add('active'));
   document.getElementById('closeSuggest').addEventListener('click', () => suggestOverlay.classList.remove('active'));
@@ -345,6 +414,7 @@
     }
   });
 
+  // ===== POPUP IKLAN (sekali per sesi) =====
   const adOverlay = document.getElementById('adOverlay');
   document.getElementById('closeAd').addEventListener('click', () => adOverlay.classList.remove('active'));
   adOverlay.addEventListener('click', (e) => { if (e.target === adOverlay) adOverlay.classList.remove('active'); });
@@ -355,9 +425,398 @@
     }, 1800);
   }
 
+  // ===== ADMIN MODE TOGGLE =====
+  const ADMIN_PASSWORD = 'admin234';
+  let adminActive = false;
+
+  function toggleAdmin(show) {
+    adminActive = show;
+    adminPanel.classList.toggle('active', show);
+    adminToggleBtn.textContent = show ? '🔓 Keluar Mode Admin' : '🔐 Mode Admin';
+    if (show) {
+      // Muat data admin (localStorage)
+      loadLocal();
+      loadAdminRooms();
+      listenSuggestions();
+      // Inisialisasi canvas (jika belum)
+      initCanvas();
+    }
+  }
+
+  adminToggleBtn.addEventListener('click', () => {
+    if (adminActive) {
+      toggleAdmin(false);
+      showToast('Mode admin nonaktif');
+      return;
+    }
+    const pass = prompt('Masukkan password admin:');
+    if (pass === ADMIN_PASSWORD) {
+      toggleAdmin(true);
+      showToast('✅ Mode admin aktif');
+    } else if (pass !== null) {
+      showToast('⚠️ Password salah');
+    }
+  });
+
+  // ===== ADMIN: LOAD ROOMS (untuk select) =====
+  async function loadAdminRooms() {
+    console.log('📂 Memuat ruang untuk admin...');
+    try {
+      const snapshot = await getDocs(collection(db, 'rooms'));
+      const rooms = [];
+      snapshot.forEach(doc => rooms.push({ id: doc.id, ...doc.data() }));
+      const select = document.getElementById('roomSelect');
+      select.innerHTML = '<option value="">Pilih ruang...</option>';
+      rooms.forEach(room => {
+        select.innerHTML += `<option value="${room.id}">${room.name || room.id}</option>`;
+      });
+      if (rooms.length > 0) select.value = rooms[0].id;
+    } catch (error) {
+      console.error('❌ Gagal memuat ruang admin:', error);
+      showToast('⚠️ Gagal memuat ruang: ' + error.message);
+    }
+  }
+
+  // ===== ADMIN: CREATE ROOM =====
+  document.getElementById('createRoomBtn').addEventListener('click', async () => {
+    console.log('🏠 Tombol Buat Ruang diklik');
+    try {
+      const name = document.getElementById('roomNameInput').value.trim() || 'Ruang Baru';
+      const docRef = await addDoc(collection(db, 'rooms'), { name, createdAt: new Date() });
+      showToast(`✅ Ruang "${name}" dibuat!`);
+      document.getElementById('roomNameInput').value = '';
+      document.getElementById('roomInfo').innerHTML = `<div style="background:#f5f3f0;padding:10px 16px;border-radius:14px;font-size:14px;">🔑 Kode: ${docRef.id}</div>`;
+      await loadAdminRooms();
+      document.getElementById('roomSelect').value = docRef.id;
+      // Refresh publik
+      await loadRooms();
+    } catch (error) {
+      console.error('❌ Gagal buat ruang:', error);
+      showToast('⚠️ Gagal: ' + error.message);
+    }
+  });
+
+  // ===== ADMIN: WHITEBOARD =====
+  const canvas = document.getElementById('whiteboardCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function initCanvas() {
+    // Kosongkan history
+    drawingHistory = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    let clientX, clientY;
+    if (e.touches) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+      e.preventDefault();
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+  }
+
+  function startDraw(e) {
+    e.preventDefault();
+    isDrawing = true;
+    const pos = getPos(e);
+    lastX = pos.x;
+    lastY = pos.y;
+  }
+
+  function draw(e) {
+    e.preventDefault();
+    if (!isDrawing) return;
+    const pos = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.strokeStyle = document.getElementById('brushColor').value;
+    ctx.lineWidth = document.getElementById('brushSize').value;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    lastX = pos.x;
+    lastY = pos.y;
+  }
+
+  function endDraw(e) {
+    e.preventDefault();
+    if (isDrawing) {
+      isDrawing = false;
+      canvas.releasePointerCapture?.(e.pointerId);
+      drawingHistory.push(canvas.toDataURL());
+      if (drawingHistory.length > 30) drawingHistory.shift();
+    }
+  }
+
+  // Canvas events
+  canvas.style.touchAction = 'none';
+  canvas.addEventListener('pointerdown', (e) => { canvas.setPointerCapture(e.pointerId); startDraw(e); });
+  canvas.addEventListener('pointermove', draw);
+  canvas.addEventListener('pointerup', endDraw);
+  canvas.addEventListener('pointercancel', endDraw);
+
+  document.getElementById('clearCanvasBtn').addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawingHistory = [canvas.toDataURL()];
+    showToast('🧹 Canvas dibersihkan');
+  });
+
+  document.getElementById('undoCanvasBtn').addEventListener('click', () => {
+    if (drawingHistory.length > 1) {
+      drawingHistory.pop();
+      const prev = drawingHistory[drawingHistory.length - 1];
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        showToast('↩️ Undo');
+      };
+      img.src = prev;
+    } else {
+      showToast('⚠️ Tidak ada undo');
+    }
+  });
+
+  // ===== ADMIN: SAVE DRAWING (Upload ke Storage) =====
+  async function uploadToStorage(base64Image) {
+    console.log('📤 Upload ke Firebase Storage...');
+    try {
+      const path = `karya/${Date.now()}_${Math.random().toString(36).slice(2)}.png`;
+      const storageRef = ref(storage, path);
+      await uploadString(storageRef, base64Image, 'data_url');
+      const url = await getDownloadURL(storageRef);
+      console.log('✅ Storage sukses:', url);
+      return url;
+    } catch (err) {
+      console.error('❌ Storage error:', err);
+      throw err;
+    }
+  }
+
+  document.getElementById('saveDrawingBtn').addEventListener('click', async () => {
+    console.log('🖌️ Save drawing diklik');
+    try {
+      const dataUrl = canvas.toDataURL();
+      const caption = prompt('Judul:', 'Gambar whiteboard');
+      if (caption === null) return;
+      const desc = prompt('Deskripsi:', '');
+      showToast('⏳ Upload ke Storage...');
+      const imgUrl = await uploadToStorage(dataUrl);
+      localData.push({ src: imgUrl, caption: caption, description: desc || '' });
+      saveLocal();
+      showToast('✅ Ditambahkan!');
+    } catch (error) {
+      console.error('❌ Gagal simpan drawing:', error);
+      showToast('⚠️ ' + error.message);
+    }
+  });
+
+  // ===== ADMIN: LOCAL DATA =====
+  function loadLocal() {
+    console.log('💾 Memuat data lokal...');
+    try {
+      const stored = localStorage.getItem('galleryLocal');
+      if (stored) {
+        localData = JSON.parse(stored);
+        console.log(`✅ ${localData.length} karya dimuat dari localStorage`);
+      } else {
+        localData = [];
+        console.log('ℹ️ Tidak ada data lokal');
+      }
+    } catch(e) {
+      console.error('❌ Gagal parse localStorage:', e);
+      localData = [];
+    }
+    renderAdminGallery();
+  }
+
+  function saveLocal() {
+    console.log('💾 Menyimpan ke localStorage...');
+    try {
+      localStorage.setItem('galleryLocal', JSON.stringify(localData));
+      renderAdminGallery();
+      document.getElementById('count').textContent = localData.length;
+      console.log(`✅ ${localData.length} karya tersimpan`);
+    } catch(e) {
+      console.error('❌ Gagal simpan localStorage:', e);
+    }
+  }
+
+  function renderAdminGallery() {
+    const container = document.getElementById('adminGallery');
+    if (localData.length === 0) {
+      container.innerHTML = `<div class="empty-admin">Belum ada karya</div>`;
+      return;
+    }
+    let html = '';
+    localData.forEach((item, idx) => {
+      html += `
+        <div class="admin-card">
+          <img src="${item.src}" alt="${item.caption}" loading="lazy">
+          <div class="info">${item.caption || 'Karya'}</div>
+          <div class="actions">
+            <button class="btn-edit" data-index="${idx}">✏️</button>
+            <button class="btn-del" data-index="${idx}">🗑️</button>
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+
+    document.querySelectorAll('.btn-del').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index);
+        if (confirm('Hapus?')) {
+          localData.splice(idx, 1);
+          saveLocal();
+          showToast('🗑️ Dihapus');
+        }
+      });
+    });
+
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index);
+        const item = localData[idx];
+        const newCap = prompt('Judul baru:', item.caption || '');
+        const newDesc = prompt('Deskripsi baru:', item.description || '');
+        if (newCap !== null) item.caption = newCap;
+        if (newDesc !== null) item.description = newDesc;
+        saveLocal();
+        showToast('✅ Diperbarui');
+      });
+    });
+
+    document.getElementById('count').textContent = localData.length;
+  }
+
+  // ===== ADMIN: UPLOAD FILE =====
+  document.getElementById('uploadFileBtn').addEventListener('click', async () => {
+    console.log('📤 Tombol Upload File diklik');
+    try {
+      const fileInput = document.getElementById('imageInput');
+      const caption = document.getElementById('captionInput').value.trim() || 'Karya';
+      const description = document.getElementById('descInput').value.trim();
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        showToast('⚠️ Pilih gambar');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      console.log('📁 File:', file.name, file.size);
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          setProgress(20);
+          showToast('⏳ Upload ke Storage...');
+          const imgUrl = await uploadToStorage(e.target.result);
+          setProgress(80);
+          localData.push({ src: imgUrl, caption: caption, description: description || '' });
+          saveLocal();
+          fileInput.value = '';
+          document.getElementById('captionInput').value = '';
+          document.getElementById('descInput').value = '';
+          setProgress(100);
+          showToast('✅ Ditambahkan!');
+          console.log('✅ File berhasil diupload dan ditambahkan');
+        } catch (error) {
+          console.error('❌ Gagal upload file:', error);
+          showToast('⚠️ ' + error.message);
+          setProgress(0);
+          document.getElementById('progressBar').style.display = 'none';
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('❌ Gagal:', error);
+      showToast('⚠️ ' + error.message);
+    }
+  });
+
+  function setProgress(pct) {
+    const bar = document.getElementById('progressBar');
+    const fill = document.getElementById('progressFill');
+    bar.style.display = 'block';
+    fill.style.width = pct + '%';
+    if (pct >= 100) {
+      setTimeout(() => { bar.style.display = 'none'; fill.style.width = '0%'; }, 1000);
+    }
+  }
+
+  // ===== ADMIN: PUBLISH =====
+  document.getElementById('publishBtn').addEventListener('click', async () => {
+    console.log('🚀 Tombol Publish diklik');
+    try {
+      const roomId = document.getElementById('roomSelect').value;
+      if (!roomId) { showToast('⚠️ Pilih ruang'); return; }
+      if (localData.length === 0) { showToast('⚠️ Belum ada karya'); return; }
+
+      showToast('⏳ Mempublish ke server...');
+      const karyaRef = collection(db, 'rooms', roomId, 'karya');
+      let count = 0;
+      for (const item of localData) {
+        await addDoc(karyaRef, {
+          src: item.src,
+          caption: item.caption || 'Karya',
+          description: item.description || '',
+          createdAt: new Date()
+        });
+        count++;
+        console.log(`📤 ${count}/${localData.length} karya dipublish`);
+      }
+      showToast(`✅ ${localData.length} karya dipublish!`);
+      console.log(`✅ Selesai publish ${localData.length} karya`);
+      // Refresh galeri publik
+      if (currentRoom === roomId) {
+        listenRoom(roomId);
+      }
+    } catch (error) {
+      console.error('❌ Gagal publish:', error);
+      showToast('⚠️ Gagal: ' + error.message);
+    }
+  });
+
+  // ===== ADMIN: LISTEN SUGGESTIONS =====
+  function listenSuggestions() {
+    const q = query(collection(db, 'suggestions'), orderBy('createdAt', 'desc'));
+    onSnapshot(q, (snapshot) => {
+      const items = [];
+      snapshot.forEach(d => items.push({ id: d.id, ...d.data() }));
+      const list = document.getElementById('suggestList');
+      document.getElementById('suggestCount').textContent = items.length;
+      if (items.length === 0) {
+        list.innerHTML = '<div class="empty-admin">Belum ada saran</div>';
+        return;
+      }
+      list.innerHTML = items.map(item => `
+        <div class="suggest-item">
+          <span>${item.text}</span>
+          <button data-id="${item.id}">🗑️</button>
+        </div>
+      `).join('');
+      list.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          await deleteDoc(doc(db, 'suggestions', btn.dataset.id));
+          showToast('🗑️ Saran dihapus');
+        });
+      });
+    }, (error) => {
+      console.error('❌ Gagal memuat saran:', error);
+    });
+  }
+
+  // ===== STARTUP =====
   try {
     await loadRooms();
-    console.log('🏁 Index siap');
+    console.log('🏁 Aplikasi siap');
   } catch (error) {
     console.error('❌ Error startup:', error);
     galleryEl.innerHTML = `<div class="empty"><span>⚠️</span>${error.message}</div>`;
