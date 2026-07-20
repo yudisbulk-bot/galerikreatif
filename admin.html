@@ -16,7 +16,7 @@
     .row { display:flex; gap:10px; flex-wrap:wrap; }
     .row input, .row textarea { flex:1; padding:12px 16px; border:2px solid #eee; border-radius:14px; font-size:14px; font-family:inherit; min-width:120px; }
     .row textarea { min-height:60px; resize:vertical; }
-    .btn { padding:12px 24px; border:none; border-radius:40px; font-weight:600; cursor:pointer; background:#1a1a1a; color:#fff; transition:0.2s; }
+    .btn { padding:12px 24px; border:none; border-radius:40px; font-weight:600; cursor:pointer; background:#1a1a1a; color:#fff; }
     .btn:active { transform:scale(0.95); }
     .btn-success { background:#34c759; }
     .btn-danger { background:#ff4d4d; }
@@ -24,7 +24,7 @@
     .canvas-wrapper { background:#fafafa; border-radius:16px; overflow:hidden; border:2px dashed #ddd; margin-top:8px; }
     #whiteboardCanvas { width:100%; height:auto; aspect-ratio:4/3; display:block; touch-action:none; cursor:crosshair; background:white; }
     .canvas-tools { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
-    .canvas-tools button { padding:10px 16px; border:none; border-radius:40px; font-weight:600; cursor:pointer; flex:1; min-width:60px; transition:0.2s; }
+    .canvas-tools button { padding:10px 16px; border:none; border-radius:40px; font-weight:600; cursor:pointer; flex:1; min-width:60px; }
     .canvas-tools button:active { transform:scale(0.95); }
     .upload-area { display:flex; flex-direction:column; gap:10px; }
     .upload-area input[type="file"] { padding:12px; border:2px dashed #ddd; border-radius:16px; background:#fafafa; }
@@ -37,11 +37,10 @@
     .btn-edit { background:#f0f0f0; }
     .btn-del { background:#ff4d4d; color:#fff; }
     .empty-admin { text-align:center; color:#bbb; padding:30px 0; grid-column:1/-1; }
-    .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:#fff; padding:12px 28px; border-radius:40px; font-size:14px; opacity:0; transition:0.3s; pointer-events:none; z-index:999; white-space:nowrap; }
+    .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:#fff; padding:12px 28px; border-radius:40px; font-size:14px; opacity:0; transition:0.3s; pointer-events:none; z-index:999; }
     .toast.show { opacity:1; }
     .publish-btn { width:100%; padding:14px; border:none; border-radius:40px; font-size:16px; font-weight:700; background:#34c759; color:#fff; cursor:pointer; }
     .publish-btn:active { transform:scale(0.97); }
-    .room-code { background:#f5f3f0; padding:12px 16px; border-radius:14px; font-size:14px; font-weight:600; display:inline-block; margin-top:8px; }
     .progress-bar { width:100%; height:6px; background:#eee; border-radius:4px; margin-top:8px; overflow:hidden; display:none; }
     .progress-bar .fill { height:100%; background:#34c759; width:0%; transition:width 0.3s; }
     select { padding:12px; border:2px solid #eee; border-radius:14px; font-size:14px; width:100%; margin-bottom:12px; background:white; }
@@ -54,58 +53,50 @@
     <a href="index.html">👀 Lihat Galeri</a>
   </div>
 
-  <!-- Buat Ruang -->
   <div class="section">
-    <h2>🏠 Buat Ruang Baru</h2>
+    <h2>🏠 Buat Ruang</h2>
     <div class="row">
-      <input type="text" id="roomNameInput" placeholder="Nama ruang (misal: Fotografi)">
+      <input type="text" id="roomNameInput" placeholder="Nama ruang">
       <button class="btn" id="createRoomBtn">➕ Buat</button>
     </div>
     <div id="roomInfo" style="margin-top:10px;"></div>
   </div>
 
-  <!-- Whiteboard -->
   <div class="section">
-    <h2>✏️ Whiteboard (Free Draw)</h2>
+    <h2>✏️ Whiteboard</h2>
     <div class="canvas-wrapper">
       <canvas id="whiteboardCanvas" width="600" height="450"></canvas>
     </div>
     <div class="canvas-tools">
-      <button class="btn-success" id="saveDrawingBtn">💾 Simpan ke Daftar</button>
-      <button class="btn-danger" id="clearCanvasBtn">🗑️ Hapus Canvas</button>
+      <button class="btn-success" id="saveDrawingBtn">💾 Simpan</button>
+      <button class="btn-danger" id="clearCanvasBtn">🗑️ Hapus</button>
       <button class="btn-secondary" id="undoCanvasBtn">↩️ Undo</button>
     </div>
   </div>
 
-  <!-- Upload File -->
   <div class="section">
-    <h2>📤 Upload Gambar (otomatis ke Imgur)</h2>
+    <h2>📤 Upload File</h2>
     <div class="upload-area">
       <input type="file" id="imageInput" accept="image/*">
       <div class="row">
-        <input type="text" id="captionInput" placeholder="Judul karya...">
-        <textarea id="descInput" placeholder="Deskripsi..."></textarea>
+        <input type="text" id="captionInput" placeholder="Judul">
+        <textarea id="descInput" placeholder="Deskripsi"></textarea>
       </div>
-      <button class="btn" id="uploadFileBtn">➕ Tambahkan dari File</button>
+      <button class="btn" id="uploadFileBtn">➕ Tambah</button>
       <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
     </div>
   </div>
 
-  <!-- Daftar Karya Lokal -->
   <div class="section">
     <h2>📚 Daftar Karya (<span id="count">0</span>)</h2>
-    <div id="adminGallery" class="gallery-admin"><div class="empty-admin">Belum ada karya</div></div>
+    <div id="adminGallery" class="gallery-admin"><div class="empty-admin">Belum ada</div></div>
   </div>
 
-  <!-- Publish -->
   <div class="section">
-    <h2>🚀 Publish ke Ruang</h2>
+    <h2>🚀 Publish ke Server</h2>
     <select id="roomSelect"><option value="">Pilih ruang...</option></select>
-    <button class="publish-btn" id="publishBtn">📤 Publish Semua Karya ke Ruang Ini</button>
-    <p style="font-size:13px;color:#888;margin-top:8px;">Karya akan ditambahkan ke ruang (tidak menghapus karya lama).</p>
+    <button class="publish-btn" id="publishBtn">📤 Publish ke Server</button>
   </div>
-
-  <div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0;">Gambar di Imgur • Data di Firebase</div>
 </div>
 <div id="toast" class="toast">✅ Tersimpan</div>
 
@@ -120,7 +111,6 @@
   import { initializeApp } from "firebase/app";
   import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
 
-  // ========== FIREBASE ==========
   const firebaseConfig = {
     apiKey: "AIzaSyCrhghmAhtTijVNLKw5izsa-7TVCRzd2L4",
     authDomain: "galeri-kreatif.firebaseapp.com",
@@ -132,21 +122,18 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // ========== STATE ==========
   let localData = [];
   let rooms = [];
   let drawingHistory = [];
   let isDrawing = false;
   let lastX = 0, lastY = 0;
 
-  // ========== DOM ==========
   const canvas = document.getElementById('whiteboardCanvas');
   const ctx = canvas.getContext('2d');
   const toast = document.getElementById('toast');
   const progressBar = document.getElementById('progressBar');
   const progressFill = document.getElementById('progressFill');
 
-  // ========== TOAST ==========
   function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add('show');
@@ -162,9 +149,8 @@
     }
   }
 
-  // ========== UPLOAD KE IMGUR ==========
+  // ===== UPLOAD KE IMGUR =====
   async function uploadToImgur(base64Image) {
-    // Hapus prefix "data:image/png;base64,"
     const raw = base64Image.split(',')[1];
     const formData = new FormData();
     formData.append('image', raw);
@@ -183,7 +169,7 @@
     return data.data.link;
   }
 
-  // ========== WHITEBOARD ==========
+  // ===== WHITEBOARD =====
   function getPos(e) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -262,28 +248,24 @@
     }
   });
 
-  // ========== SAVE DRAWING ==========
+  // ===== SAVE DRAWING =====
   document.getElementById('saveDrawingBtn').addEventListener('click', async () => {
     const dataUrl = canvas.toDataURL();
-    const caption = prompt('Judul karya:', 'Gambar whiteboard');
+    const caption = prompt('Judul:', 'Gambar whiteboard');
     if (caption === null) return;
     const desc = prompt('Deskripsi:', '');
     try {
       showToast('⏳ Upload ke Imgur...');
       const imgUrl = await uploadToImgur(dataUrl);
-      localData.push({
-        src: imgUrl,
-        caption: caption || 'Gambar whiteboard',
-        description: desc || ''
-      });
+      localData.push({ src: imgUrl, caption: caption, description: desc || '' });
       saveLocal();
-      showToast('✅ Gambar ditambahkan ke daftar!');
+      showToast('✅ Ditambahkan!');
     } catch (error) {
       showToast('⚠️ ' + error.message);
     }
   });
 
-  // ========== ROOMS ==========
+  // ===== ROOMS =====
   async function loadRooms() {
     const snapshot = await getDocs(collection(db, 'rooms'));
     rooms = [];
@@ -306,10 +288,7 @@
       const docRef = await addDoc(collection(db, 'rooms'), { name, createdAt: new Date() });
       showToast(`✅ Ruang "${name}" dibuat!`);
       document.getElementById('roomNameInput').value = '';
-      document.getElementById('roomInfo').innerHTML = `
-        <div class="room-code">🔑 Kode Ruang: ${docRef.id}</div>
-        <p style="font-size:13px;color:#888;margin-top:4px;">Simpan kode ini untuk akses.</p>
-      `;
+      document.getElementById('roomInfo').innerHTML = `<div style="background:#f5f3f0;padding:10px 16px;border-radius:14px;font-size:14px;">🔑 Kode: ${docRef.id}</div>`;
       await loadRooms();
       document.getElementById('roomSelect').value = docRef.id;
     } catch (error) {
@@ -317,7 +296,7 @@
     }
   });
 
-  // ========== LOCAL DATA ==========
+  // ===== LOCAL DATA =====
   function loadLocal() {
     const stored = localStorage.getItem('galleryLocal');
     if (stored) {
@@ -356,7 +335,7 @@
     document.querySelectorAll('.btn-del').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.dataset.index);
-        if (confirm('Hapus karya ini?')) {
+        if (confirm('Hapus?')) {
           localData.splice(idx, 1);
           saveLocal();
           showToast('🗑️ Dihapus');
@@ -380,7 +359,7 @@
     document.getElementById('count').textContent = localData.length;
   }
 
-  // ========== UPLOAD FILE ==========
+  // ===== UPLOAD FILE =====
   document.getElementById('uploadFileBtn').addEventListener('click', async () => {
     const fileInput = document.getElementById('imageInput');
     const caption = document.getElementById('captionInput').value.trim() || 'Karya';
@@ -399,17 +378,13 @@
         showToast('⏳ Upload ke Imgur...');
         const imgUrl = await uploadToImgur(e.target.result);
         setProgress(80);
-        localData.push({
-          src: imgUrl,
-          caption: caption,
-          description: description || ''
-        });
+        localData.push({ src: imgUrl, caption: caption, description: description || '' });
         saveLocal();
         fileInput.value = '';
         document.getElementById('captionInput').value = '';
         document.getElementById('descInput').value = '';
         setProgress(100);
-        showToast('✅ Karya ditambahkan!');
+        showToast('✅ Ditambahkan!');
       } catch (error) {
         showToast('⚠️ ' + error.message);
         setProgress(0);
@@ -419,14 +394,14 @@
     reader.readAsDataURL(file);
   });
 
-  // ========== PUBLISH ==========
+  // ===== PUBLISH =====
   document.getElementById('publishBtn').addEventListener('click', async () => {
     const roomId = document.getElementById('roomSelect').value;
     if (!roomId) { showToast('⚠️ Pilih ruang'); return; }
     if (localData.length === 0) { showToast('⚠️ Belum ada karya'); return; }
 
     try {
-      showToast('⏳ Mempublish...');
+      showToast('⏳ Mempublish ke server...');
       const karyaRef = collection(db, 'rooms', roomId, 'karya');
       for (const item of localData) {
         await addDoc(karyaRef, {
@@ -436,13 +411,13 @@
           createdAt: new Date()
         });
       }
-      showToast(`✅ Berhasil publish ${localData.length} karya!`);
+      showToast(`✅ ${localData.length} karya dipublish!`);
     } catch (error) {
       showToast('⚠️ Gagal: ' + error.message);
     }
   });
 
-  // ========== INIT ==========
+  // ===== START =====
   await loadRooms();
   loadLocal();
 </script>

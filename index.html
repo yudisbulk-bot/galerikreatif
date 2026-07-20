@@ -14,13 +14,11 @@
     .room-selector { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:12px; }
     .room-btn { padding:8px 20px; border-radius:40px; border:2px solid #ddd; background:#fff; font-weight:600; cursor:pointer; }
     .room-btn.active { border-color:#1a1a1a; background:#1a1a1a; color:#fff; }
-    .room-empty { color:#999; font-size:14px; padding:8px 0; }
     .gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:16px; margin-top:20px; }
-    .card { background:#fff; border-radius:20px; overflow:hidden; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.06); transition:0.2s; }
+    .card { background:#fff; border-radius:20px; overflow:hidden; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
     .card:active { transform:scale(0.97); }
     .card img { width:100%; height:170px; object-fit:cover; display:block; background:#eee; }
     .card .title { padding:12px 14px; font-weight:700; font-size:14px; }
-    .card .owner { padding:0 14px 12px; font-size:12px; color:#999; }
     .empty { text-align:center; padding:60px 20px; color:#bbb; grid-column:1/-1; }
     .empty span { font-size:48px; display:block; margin-bottom:12px; }
     .loading { text-align:center; padding:40px; color:#999; grid-column:1/-1; }
@@ -41,13 +39,11 @@
   <div class="header">
     <h1>🎨 Galeri Kreatif</h1>
     <p>Lihat karya dari berbagai ruang</p>
-    <div class="badge">🔥 Multi-User • Firebase</div>
-    <div class="room-selector" id="roomSelector">
-      <span class="room-empty">⏳ Memuat ruang...</span>
-    </div>
+    <div class="badge">🔥 Firebase • Server</div>
+    <div class="room-selector" id="roomSelector"></div>
   </div>
-  <div id="gallery" class="gallery"><div class="loading">⏳ Memuat karya...</div></div>
-  <div class="footer"><a href="admin.html">🔐 Admin</a> • Pilih ruang di atas</div>
+  <div id="gallery" class="gallery"><div class="loading">⏳ Memuat...</div></div>
+  <div class="footer"><a href="admin.html">🔐 Admin</a></div>
 </div>
 
 <div class="modal" id="detailModal">
@@ -55,7 +51,6 @@
     <img id="modalImage" src="">
     <div class="modal-content">
       <h2 id="modalTitle">Judul</h2>
-      <div style="font-size:12px;color:#999;margin-bottom:8px;" id="modalOwner">Owner</div>
       <div class="desc" id="modalDesc">Deskripsi</div>
       <button class="modal-close" id="closeModal">Tutup</button>
     </div>
@@ -87,14 +82,12 @@
 
   let allRooms = [];
   let currentRoom = null;
-  let currentData = [];
 
   const galleryEl = document.getElementById('gallery');
   const roomSelector = document.getElementById('roomSelector');
   const modal = document.getElementById('detailModal');
   const modalImg = document.getElementById('modalImage');
   const modalTitle = document.getElementById('modalTitle');
-  const modalOwner = document.getElementById('modalOwner');
   const modalDesc = document.getElementById('modalDesc');
   const closeModal = document.getElementById('closeModal');
 
@@ -107,13 +100,13 @@
       currentRoom = allRooms[0].id;
       listenRoom(currentRoom);
     } else if (allRooms.length === 0) {
-      galleryEl.innerHTML = `<div class="empty"><span>🏠</span>Belum ada ruang<br><small>Admin belum membuat ruang</small></div>`;
+      galleryEl.innerHTML = `<div class="empty"><span>🏠</span>Belum ada ruang</div>`;
     }
   }
 
   function renderRoomSelector() {
     if (allRooms.length === 0) {
-      roomSelector.innerHTML = `<span class="room-empty">🏠 Belum ada ruang. Admin buat dulu.</span>`;
+      roomSelector.innerHTML = `<span style="color:#999;">Belum ada ruang</span>`;
       return;
     }
     let html = '';
@@ -136,9 +129,9 @@
   function listenRoom(roomId) {
     const q = query(collection(db, 'rooms', roomId, 'karya'), orderBy('createdAt', 'desc'));
     onSnapshot(q, (snapshot) => {
-      currentData = [];
-      snapshot.forEach(doc => currentData.push({ id: doc.id, ...doc.data() }));
-      renderGallery(currentData, roomId);
+      const data = [];
+      snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+      renderGallery(data, roomId);
     }, (error) => {
       galleryEl.innerHTML = `<div class="empty"><span>⚠️</span>${error.message}</div>`;
     });
@@ -148,7 +141,7 @@
     const room = allRooms.find(r => r.id === roomId);
     const roomName = room ? room.name : roomId;
     if (!data || data.length === 0) {
-      galleryEl.innerHTML = `<div class="empty"><span>🖼️</span>Belum ada karya di ruang ini</div>`;
+      galleryEl.innerHTML = `<div class="empty"><span>🖼️</span>Belum ada karya</div>`;
       return;
     }
     let html = '';
@@ -157,7 +150,6 @@
         <div class="card" data-index="${i}">
           <img src="${item.src}" alt="${item.caption}" loading="lazy">
           <div class="title">${item.caption || 'Karya'}</div>
-          <div class="owner">👤 ${roomName}</div>
         </div>
       `;
     });
@@ -167,7 +159,6 @@
         const item = data[idx];
         modalImg.src = item.src;
         modalTitle.textContent = item.caption || 'Karya';
-        modalOwner.textContent = `👤 ${roomName}`;
         modalDesc.textContent = item.description || 'Tidak ada deskripsi.';
         modal.classList.add('active');
       });
