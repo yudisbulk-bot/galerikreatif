@@ -2,112 +2,101 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin - Galeri</title>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:system-ui; }
     body { background:#f5f3f0; padding:16px; }
     .container { max-width:700px; margin:0 auto; }
-    .section { background:white; border-radius:24px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:20px; }
-    .section h2 { font-size:18px; margin-bottom:14px; }
-    .header { background:white; padding:20px 24px; border-radius:24px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
-    .header h1 { font-size:24px; font-weight:700; }
+    .header { background:#fff; padding:20px 24px; border-radius:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
+    .header h1 { font-size:24px; }
     .header a { color:#888; text-decoration:none; font-weight:600; }
-    .badge { background:#ffd700; padding:4px 14px; border-radius:40px; font-size:12px; font-weight:700; }
-    .canvas-wrapper { background:#fafafa; border-radius:16px; overflow:hidden; border:2px dashed #ddd; }
-    #whiteboardCanvas { width:100%; height:auto; aspect-ratio:4/3; display:block; touch-action:none; cursor:crosshair; background:white; }
-    .canvas-tools { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-    .canvas-tools button { padding:10px 16px; border:none; border-radius:40px; background:#f0f0f0; font-weight:600; cursor:pointer; flex:1; min-width:60px; }
-    .canvas-tools button:active { transform:scale(0.95); }
-    .btn-primary { background:#1a1a1a !important; color:white !important; }
-    .btn-danger { background:#ff4d4d !important; color:white !important; }
-    .btn-success { background:#34c759 !important; color:white !important; }
+    .section { background:#fff; border-radius:24px; padding:20px; margin-bottom:20px; box-shadow:0 4px 12px rgba(0,0,0,0.05); }
+    .section h2 { font-size:18px; margin-bottom:14px; }
     .upload-area { display:flex; flex-direction:column; gap:10px; }
     .upload-area input[type="file"] { padding:12px; border:2px dashed #ddd; border-radius:16px; background:#fafafa; }
-    .upload-area .row { display:flex; gap:10px; flex-wrap:wrap; }
-    .upload-area .row input, .upload-area .row textarea { flex:1; padding:12px 16px; border:2px solid #eee; border-radius:14px; font-size:14px; font-family:inherit; min-width:120px; }
-    .upload-area .row textarea { min-height:60px; resize:vertical; }
-    .upload-area .row button { padding:12px 24px; background:#1a1a1a; color:white; border:none; border-radius:40px; font-weight:600; cursor:pointer; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; }
+    .row input, .row textarea { flex:1; padding:12px 16px; border:2px solid #eee; border-radius:14px; font-size:14px; font-family:inherit; min-width:120px; }
+    .row textarea { min-height:60px; resize:vertical; }
+    .btn { padding:12px 24px; border:none; border-radius:40px; font-weight:600; cursor:pointer; background:#1a1a1a; color:#fff; }
+    .btn:active { transform:scale(0.95); }
+    .btn-success { background:#34c759; }
+    .btn-danger { background:#ff4d4d; }
     .gallery-admin { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-top:16px; }
-    .admin-card { background:white; border-radius:16px; overflow:hidden; border:2px solid #eee; }
+    .admin-card { background:#fff; border-radius:16px; overflow:hidden; border:2px solid #eee; }
     .admin-card img { width:100%; height:130px; object-fit:cover; display:block; }
-    .admin-card .info { padding:10px 12px; font-size:13px; font-weight:600; color:#1a1a1a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .admin-card .info { padding:10px 12px; font-weight:600; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .admin-card .actions { display:flex; gap:6px; padding:0 12px 12px; }
     .admin-card .actions button { flex:1; padding:6px; border:none; border-radius:30px; font-size:12px; font-weight:600; cursor:pointer; }
-    .admin-card .actions button:active { transform:scale(0.93); }
-    .btn-edit { background:#f0f0f0; color:#333; }
-    .btn-del { background:#ff4d4d; color:white; }
+    .btn-edit { background:#f0f0f0; }
+    .btn-del { background:#ff4d4d; color:#fff; }
     .empty-admin { text-align:center; color:#bbb; padding:30px 0; grid-column:1/-1; }
-    .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:white; padding:12px 28px; border-radius:40px; font-size:14px; opacity:0; transition:0.3s; pointer-events:none; z-index:999; }
+    .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:#fff; padding:12px 28px; border-radius:40px; font-size:14px; opacity:0; transition:0.3s; pointer-events:none; z-index:999; }
     .toast.show { opacity:1; }
-    .info-text { font-size:13px; color:#888; margin-top:8px; }
-    .publish-btn { width:100%; padding:14px; border:none; border-radius:40px; font-size:16px; font-weight:700; cursor:pointer; background:#34c759; color:white; }
+    .publish-btn { width:100%; padding:14px; border:none; border-radius:40px; font-size:16px; font-weight:700; background:#34c759; color:#fff; cursor:pointer; }
     .publish-btn:active { transform:scale(0.97); }
+    .room-code { background:#f5f3f0; padding:12px 16px; border-radius:14px; font-size:14px; font-weight:600; display:inline-block; margin-top:8px; }
   </style>
 </head>
 <body>
-
 <div class="container">
   <div class="header">
-    <div><h1>🔐 Admin Panel</h1><span class="badge">✏️ Edit Mode</span></div>
+    <div><h1>🔐 Admin</h1><span style="background:#ffd700;padding:4px 14px;border-radius:40px;font-size:12px;font-weight:700;">Edit Mode</span></div>
     <a href="index.html">👀 Lihat Galeri</a>
   </div>
 
-  <!-- Whiteboard -->
+  <!-- Buat Ruang -->
   <div class="section">
-    <h2>✏️ Whiteboard (Gambar Bebas)</h2>
-    <div class="canvas-wrapper">
-      <canvas id="whiteboardCanvas" width="600" height="450"></canvas>
+    <h2>🏠 Buat Ruang Baru</h2>
+    <div class="row">
+      <input type="text" id="roomNameInput" placeholder="Nama ruang (misal: Fotografi)">
+      <button class="btn" id="createRoomBtn">➕ Buat Ruang</button>
     </div>
-    <div class="canvas-tools">
-      <button class="btn-primary" id="saveDrawingBtn">💾 Simpan ke Gallery</button>
-      <button class="btn-danger" id="clearCanvasBtn">🗑️ Hapus Canvas</button>
-      <button id="undoCanvasBtn">↩️ Undo</button>
-    </div>
+    <div id="roomInfo" style="margin-top:10px;"></div>
   </div>
 
   <!-- Upload -->
   <div class="section">
-    <h2>📤 Upload Karya + Deskripsi</h2>
+    <h2>📤 Upload Karya</h2>
     <div class="upload-area">
       <input type="file" id="imageInput" accept="image/*">
       <div class="row">
         <input type="text" id="captionInput" placeholder="Judul karya...">
-        <textarea id="descInput" placeholder="Deskripsi / narasi cerita..."></textarea>
+        <textarea id="descInput" placeholder="Deskripsi..."></textarea>
       </div>
-      <button id="uploadBtn">➕ Tambahkan ke Daftar</button>
+      <button class="btn" id="addBtn">➕ Tambahkan ke Daftar</button>
     </div>
   </div>
 
-  <!-- Gallery Admin -->
   <div class="section">
-    <h2>📚 Daftar Karya (<span id="countLabel">0</span>)</h2>
-    <div id="galleryAdminContainer" class="gallery-admin">
-      <div class="empty-admin">Belum ada karya</div>
-    </div>
+    <h2>📚 Daftar Karya (<span id="count">0</span>)</h2>
+    <div id="adminGallery" class="gallery-admin"><div class="empty-admin">Belum ada karya</div></div>
   </div>
 
-  <!-- Publish -->
   <div class="section">
-    <h2>🚀 Publish ke Firebase</h2>
-    <button class="publish-btn" id="publishBtn">📤 Publish Semua Karya ke Firebase</button>
-    <p class="info-text">💡 Klik publish biar semua orang bisa lihat karya di Firebase. Data di HP tetap aman.</p>
+    <h2>🚀 Publish ke Ruang</h2>
+    <select id="roomSelect" style="width:100%;padding:12px;border:2px solid #eee;border-radius:14px;font-size:14px;margin-bottom:12px;">
+      <option value="">Pilih ruang...</option>
+    </select>
+    <button class="publish-btn" id="publishBtn">📤 Publish ke Ruang Ini</button>
+    <p style="font-size:13px;color:#888;margin-top:8px;">Karya akan ditambahkan ke ruang yang dipilih (tidak menghapus karya lain).</p>
   </div>
 
-  <div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0;">
-    Data sementara di HP • Publish ke Firebase untuk semua orang
-  </div>
+  <div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0;">Data sementara di HP • Publish ke Firebase</div>
 </div>
+<div id="toast" class="toast">✅ Tersimpan</div>
 
-<div id="toast" class="toast">✨ Tersimpan!</div>
+<script type="importmap">
+{
+  "imports": {
+    "firebase/": "https://www.gstatic.com/firebasejs/12.16.0/firebase-"
+  }
+}
+</script>
+<script type="module">
+  import { initializeApp } from "firebase/app";
+  import { getFirestore, collection, addDoc, getDocs, doc, query, orderBy, onSnapshot } from "firebase/firestore";
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<script>
-  // ========== KONFIGURASI FIREBASE ==========
-  // ★★★ GANTI DENGAN PUNYA KAMU! ★★★
   const firebaseConfig = {
     apiKey: "AIzaSyCrhghmAhtTijVNLKw5izsa-7TVCRzd2L4",
     authDomain: "galeri-kreatif.firebaseapp.com",
@@ -117,20 +106,14 @@
     appId: "1:436229179023:web:78445a449aaf18d30252fa"
   };
 
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  let galleryData = [];
-  let drawingHistory = [];
-  let isDrawing = false;
-  let lastX = 0, lastY = 0;
-
-  const canvas = document.getElementById('whiteboardCanvas');
-  const ctx = canvas.getContext('2d');
+  let localData = [];
+  let rooms = [];
+  let currentRoomId = '';
   const toast = document.getElementById('toast');
 
-  // ========== TOAST ==========
   function showToast(msg) {
     toast.textContent = msg;
     toast.classList.add('show');
@@ -138,264 +121,174 @@
     toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
+  // ========== LOAD ROOMS ==========
+  async function loadRooms() {
+    const snapshot = await getDocs(collection(db, 'rooms'));
+    rooms = [];
+    snapshot.forEach(doc => {
+      rooms.push({ id: doc.id, ...doc.data() });
+    });
+    renderRoomSelect();
+    if (rooms.length > 0) {
+      document.getElementById('roomSelect').value = rooms[0].id;
+      currentRoomId = rooms[0].id;
+    }
+  }
+
+  function renderRoomSelect() {
+    const select = document.getElementById('roomSelect');
+    select.innerHTML = '<option value="">Pilih ruang...</option>';
+    rooms.forEach(room => {
+      select.innerHTML += `<option value="${room.id}">${room.name || room.id}</option>`;
+    });
+  }
+
+  // ========== CREATE ROOM ==========
+  document.getElementById('createRoomBtn').addEventListener('click', async () => {
+    const name = document.getElementById('roomNameInput').value.trim() || 'Ruang Baru';
+    try {
+      const docRef = await addDoc(collection(db, 'rooms'), {
+        name: name,
+        createdAt: new Date()
+      });
+      showToast(`✅ Ruang "${name}" dibuat!`);
+      document.getElementById('roomNameInput').value = '';
+      document.getElementById('roomInfo').innerHTML = `
+        <div class="room-code">🔑 Kode Ruang: ${docRef.id}</div>
+        <p style="font-size:13px;color:#888;margin-top:4px;">Simpan kode ini untuk akses ke ruang ini.</p>
+      `;
+      await loadRooms();
+      document.getElementById('roomSelect').value = docRef.id;
+      currentRoomId = docRef.id;
+    } catch (error) {
+      showToast('⚠️ Gagal: ' + error.message);
+    }
+  });
+
   // ========== LOAD LOCAL DATA ==========
-  function loadLocalData() {
+  function loadLocal() {
     const stored = localStorage.getItem('galleryLocal');
     if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        galleryData = parsed.gallery || [];
-        if (parsed.drawing) {
-          const img = new Image();
-          img.onload = () => {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            drawingHistory = [canvas.toDataURL()];
-          };
-          img.src = parsed.drawing;
-        }
-      } catch(e) {
-        galleryData = [];
-      }
-    } else {
-      galleryData = [];
-    }
-    renderAdminGallery();
-    updateCount();
+      try { localData = JSON.parse(stored); } catch(e) { localData = []; }
+    } else { localData = []; }
+    renderAdmin();
   }
 
-  function saveLocalData() {
-    const payload = {
-      gallery: galleryData,
-      drawing: canvas.toDataURL()
-    };
-    localStorage.setItem('galleryLocal', JSON.stringify(payload));
-    updateCount();
+  function saveLocal() {
+    localStorage.setItem('galleryLocal', JSON.stringify(localData));
+    renderAdmin();
+    document.getElementById('count').textContent = localData.length;
   }
 
-  // ========== RENDER ADMIN GALLERY ==========
-  function renderAdminGallery() {
-    const container = document.getElementById('galleryAdminContainer');
-    if (galleryData.length === 0) {
+  function renderAdmin() {
+    const container = document.getElementById('adminGallery');
+    if (localData.length === 0) {
       container.innerHTML = `<div class="empty-admin">Belum ada karya</div>`;
       return;
     }
     let html = '';
-    galleryData.forEach((item, index) => {
+    localData.forEach((item, idx) => {
       html += `
         <div class="admin-card">
-          <img src="${item.src}" alt="${item.caption || 'Karya'}" loading="lazy">
+          <img src="${item.src}" alt="${item.caption}" loading="lazy">
           <div class="info">${item.caption || 'Karya'}</div>
           <div class="actions">
-            <button class="btn-edit" data-index="${index}">✏️ Edit</button>
-            <button class="btn-del" data-index="${index}">🗑️</button>
+            <button class="btn-edit" data-index="${idx}">✏️</button>
+            <button class="btn-del" data-index="${idx}">🗑️</button>
           </div>
         </div>
       `;
     });
     container.innerHTML = html;
 
-    // Delete
     document.querySelectorAll('.btn-del').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const idx = parseInt(e.target.dataset.index);
-        if (confirm('Hapus karya ini?')) {
-          galleryData.splice(idx, 1);
-          renderAdminGallery();
-          saveLocalData();
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index);
+        if (confirm('Hapus?')) {
+          localData.splice(idx, 1);
+          saveLocal();
           showToast('🗑️ Dihapus');
         }
       });
     });
 
-    // Edit
     document.querySelectorAll('.btn-edit').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const idx = parseInt(e.target.dataset.index);
-        const item = galleryData[idx];
-        const newCaption = prompt('Judul baru:', item.caption || '');
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.index);
+        const item = localData[idx];
+        const newCap = prompt('Judul baru:', item.caption || '');
         const newDesc = prompt('Deskripsi baru:', item.description || '');
-        if (newCaption !== null) item.caption = newCaption;
+        if (newCap !== null) item.caption = newCap;
         if (newDesc !== null) item.description = newDesc;
-        renderAdminGallery();
-        saveLocalData();
+        saveLocal();
         showToast('✅ Diperbarui');
       });
     });
+
+    document.getElementById('count').textContent = localData.length;
   }
 
-  function updateCount() {
-    document.getElementById('countLabel').textContent = galleryData.length;
-  }
-
-  // ========== WHITEBOARD ==========
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    let clientX, clientY;
-    if (e.touches) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-      e.preventDefault();
-    } else {
-      clientX = e.clientX;
-      clientY = e.clientY;
-    }
-    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
-  }
-
-  function startDraw(e) {
-    e.preventDefault();
-    isDrawing = true;
-    const pos = getPos(e);
-    lastX = pos.x;
-    lastY = pos.y;
-  }
-
-  function draw(e) {
-    e.preventDefault();
-    if (!isDrawing) return;
-    const pos = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(pos.x, pos.y);
-    ctx.strokeStyle = '#1a1a1a';
-    ctx.lineWidth = 4;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-    lastX = pos.x;
-    lastY = pos.y;
-  }
-
-  function endDraw(e) {
-    e.preventDefault();
-    if (isDrawing) {
-      isDrawing = false;
-      drawingHistory.push(canvas.toDataURL());
-      if (drawingHistory.length > 30) drawingHistory.shift();
-      saveLocalData();
-    }
-  }
-
-  canvas.addEventListener('mousedown', startDraw);
-  canvas.addEventListener('mousemove', draw);
-  canvas.addEventListener('mouseup', endDraw);
-  canvas.addEventListener('mouseleave', endDraw);
-  canvas.addEventListener('touchstart', startDraw, { passive: false });
-  canvas.addEventListener('touchmove', draw, { passive: false });
-  canvas.addEventListener('touchend', endDraw, { passive: false });
-
-  document.getElementById('clearCanvasBtn').addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawingHistory = [canvas.toDataURL()];
-    saveLocalData();
-    showToast('🧹 Canvas dibersihkan');
-  });
-
-  document.getElementById('undoCanvasBtn').addEventListener('click', () => {
-    if (drawingHistory.length > 1) {
-      drawingHistory.pop();
-      const prev = drawingHistory[drawingHistory.length - 1];
-      const img = new Image();
-      img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-        saveLocalData();
-        showToast('↩️ Undo');
-      };
-      img.src = prev;
-    } else {
-      showToast('⚠️ Tidak ada undo');
-    }
-  });
-
-  document.getElementById('saveDrawingBtn').addEventListener('click', () => {
-    const dataUrl = canvas.toDataURL();
-    const caption = prompt('Judul karya:', 'Gambar whiteboard');
-    const desc = prompt('Deskripsi:', '');
-    galleryData.push({
-      src: dataUrl,
-      caption: caption || 'Gambar whiteboard',
-      description: desc || ''
-    });
-    renderAdminGallery();
-    saveLocalData();
-    showToast('✅ Ditambahkan ke daftar!');
-  });
-
-  // ========== UPLOAD ==========
-  document.getElementById('uploadBtn').addEventListener('click', () => {
+  // ========== ADD ==========
+  document.getElementById('addBtn').addEventListener('click', () => {
     const fileInput = document.getElementById('imageInput');
     const caption = document.getElementById('captionInput').value.trim() || 'Karya';
     const description = document.getElementById('descInput').value.trim();
 
     if (!fileInput.files || fileInput.files.length === 0) {
-      showToast('⚠️ Pilih gambar dulu');
+      showToast('⚠️ Pilih gambar');
       return;
     }
-
     const file = fileInput.files[0];
-    if (!file.type.startsWith('image/')) {
-      showToast('⚠️ Bukan gambar');
-      return;
-    }
-
     const reader = new FileReader();
     reader.onload = (e) => {
-      galleryData.push({
+      localData.push({
         src: e.target.result,
         caption: caption,
         description: description || ''
       });
-      renderAdminGallery();
-      saveLocalData();
+      saveLocal();
       fileInput.value = '';
       document.getElementById('captionInput').value = '';
       document.getElementById('descInput').value = '';
-      showToast('✅ Karya ditambahkan ke daftar!');
+      showToast('✅ Karya ditambahkan ke daftar');
     };
     reader.readAsDataURL(file);
   });
 
-  // ========== PUBLISH KE FIRESTORE ==========
+  // ========== PUBLISH ==========
   document.getElementById('publishBtn').addEventListener('click', async () => {
-    if (galleryData.length === 0) {
-      showToast('⚠️ Belum ada karya untuk dipublish');
+    const roomId = document.getElementById('roomSelect').value;
+    if (!roomId) {
+      showToast('⚠️ Pilih ruang dulu');
+      return;
+    }
+    if (localData.length === 0) {
+      showToast('⚠️ Belum ada karya');
       return;
     }
 
     try {
-      showToast('⏳ Mempublish ke Firebase...');
+      showToast('⏳ Mempublish...');
+      const karyaRef = collection(db, 'rooms', roomId, 'karya');
 
-      // Hapus semua data lama
-      const snapshot = await db.collection('karya').get();
-      const batch = db.batch();
-      snapshot.forEach(doc => {
-        batch.delete(doc.ref);
-      });
-      await batch.commit();
-
-      // Upload data baru
-      let uploaded = 0;
-      for (const item of galleryData) {
-        await db.collection('karya').add({
+      for (const item of localData) {
+        await addDoc(karyaRef, {
           src: item.src,
           caption: item.caption || 'Karya',
           description: item.description || '',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          createdAt: new Date()
         });
-        uploaded++;
       }
-
-      showToast(`✅ Berhasil publish ${uploaded} karya ke Firebase!`);
+      showToast(`✅ Berhasil publish ${localData.length} karya ke ruang!`);
     } catch (error) {
       console.error('Error:', error);
-      showToast('⚠️ Gagal publish: ' + error.message);
+      showToast('⚠️ Gagal: ' + error.message);
     }
   });
 
   // ========== INIT ==========
-  loadLocalData();
+  await loadRooms();
+  loadLocal();
 </script>
 </body>
 </html>
