@@ -2,288 +2,89 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Admin - Mading Digital</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Galeri</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-    }
-
-    body {
-      background: #f5f3f0;
-      padding: 16px;
-      min-height: 100vh;
-    }
-
-    .container {
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    .header {
-      background: white;
-      padding: 20px 24px;
-      border-radius: 24px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .header h1 {
-      font-size: 24px;
-      font-weight: 700;
-      color: #1a1a1a;
-    }
-
-    .header .badge {
-      background: #ffd700;
-      color: #1a1a1a;
-      padding: 4px 14px;
-      border-radius: 40px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .header a {
-      color: #888;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    /* Section */
-    .section {
-      background: white;
-      border-radius: 24px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
-    }
-
-    .section h2 {
-      font-size: 18px;
-      margin-bottom: 14px;
-      color: #1a1a1a;
-    }
-
-    /* Whiteboard */
-    .canvas-wrapper {
-      background: #fafafa;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 2px dashed #ddd;
-    }
-
-    #whiteboardCanvas {
-      width: 100%;
-      height: auto;
-      aspect-ratio: 4 / 3;
-      display: block;
-      touch-action: none;
-      cursor: crosshair;
-      background: white;
-    }
-
-    .canvas-tools {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
-    .canvas-tools button {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 40px;
-      background: #f0f0f0;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-      flex: 1;
-      min-width: 60px;
-    }
-
-    .canvas-tools button:active { transform: scale(0.95); }
-    .btn-primary { background: #1a1a1a !important; color: white !important; }
-    .btn-danger { background: #ff4d4d !important; color: white !important; }
-
-    /* Upload */
-    .upload-area {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .upload-area input[type="file"] {
-      padding: 12px;
-      border: 2px dashed #ddd;
-      border-radius: 16px;
-      background: #fafafa;
-      font-size: 14px;
-    }
-
-    .upload-area .row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .upload-area .row input,
-    .upload-area .row textarea {
-      flex: 1;
-      padding: 12px 16px;
-      border: 2px solid #eee;
-      border-radius: 14px;
-      font-size: 14px;
-      font-family: inherit;
-      min-width: 120px;
-    }
-
-    .upload-area .row textarea {
-      min-height: 60px;
-      resize: vertical;
-    }
-
-    .upload-area .row button {
-      padding: 12px 24px;
-      background: #1a1a1a;
-      color: white;
-      border: none;
-      border-radius: 40px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .upload-area .row button:active { transform: scale(0.95); }
-
-    /* Gallery Admin */
-    .gallery-admin {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .admin-card {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 2px solid #eee;
-      transition: 0.2s;
-      position: relative;
-    }
-
-    .admin-card img {
-      width: 100%;
-      height: 130px;
-      object-fit: cover;
-      display: block;
-    }
-
-    .admin-card .info {
-      padding: 10px 12px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #1a1a1a;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .admin-card .actions {
-      display: flex;
-      gap: 6px;
-      padding: 0 12px 12px;
-    }
-
-    .admin-card .actions button {
-      flex: 1;
-      padding: 6px;
-      border: none;
-      border-radius: 30px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .admin-card .actions button:active { transform: scale(0.93); }
-    .btn-edit { background: #f0f0f0; color: #333; }
-    .btn-del { background: #ff4d4d; color: white; }
-
-    .empty-admin {
-      text-align: center;
-      color: #bbb;
-      padding: 30px 0;
-      grid-column: 1 / -1;
-    }
-
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1a1a1a;
-      color: white;
-      padding: 12px 28px;
-      border-radius: 40px;
-      font-size: 14px;
-      font-weight: 500;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-      opacity: 0;
-      transition: 0.3s;
-      pointer-events: none;
-      z-index: 999;
-      white-space: nowrap;
-    }
-
-    .toast.show { opacity: 1; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+    body { background:#f5f3f0; padding:16px; }
+    .container { max-width:700px; margin:0 auto; }
+    .section { background:white; border-radius:24px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,0.05); margin-bottom:20px; }
+    .section h2 { font-size:18px; margin-bottom:14px; }
+    .header { background:white; padding:20px 24px; border-radius:24px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+    .header h1 { font-size:24px; font-weight:700; }
+    .header a { color:#888; text-decoration:none; font-weight:600; }
+    .badge { background:#ffd700; padding:4px 14px; border-radius:40px; font-size:12px; font-weight:700; }
+    .canvas-wrapper { background:#fafafa; border-radius:16px; overflow:hidden; border:2px dashed #ddd; }
+    #whiteboardCanvas { width:100%; height:auto; aspect-ratio:4/3; display:block; touch-action:none; cursor:crosshair; background:white; }
+    .canvas-tools { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .canvas-tools button { padding:10px 16px; border:none; border-radius:40px; background:#f0f0f0; font-weight:600; cursor:pointer; flex:1; min-width:60px; }
+    .canvas-tools button:active { transform:scale(0.95); }
+    .btn-primary { background:#1a1a1a !important; color:white !important; }
+    .btn-danger { background:#ff4d4d !important; color:white !important; }
+    .btn-success { background:#34c759 !important; color:white !important; }
+    .upload-area { display:flex; flex-direction:column; gap:10px; }
+    .upload-area input[type="file"] { padding:12px; border:2px dashed #ddd; border-radius:16px; background:#fafafa; }
+    .upload-area .row { display:flex; gap:10px; flex-wrap:wrap; }
+    .upload-area .row input, .upload-area .row textarea { flex:1; padding:12px 16px; border:2px solid #eee; border-radius:14px; font-size:14px; font-family:inherit; min-width:120px; }
+    .upload-area .row textarea { min-height:60px; resize:vertical; }
+    .upload-area .row button { padding:12px 24px; background:#1a1a1a; color:white; border:none; border-radius:40px; font-weight:600; cursor:pointer; }
+    .gallery-admin { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-top:16px; }
+    .admin-card { background:white; border-radius:16px; overflow:hidden; border:2px solid #eee; }
+    .admin-card img { width:100%; height:130px; object-fit:cover; display:block; }
+    .admin-card .info { padding:10px 12px; font-size:13px; font-weight:600; color:#1a1a1a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .admin-card .actions { display:flex; gap:6px; padding:0 12px 12px; }
+    .admin-card .actions button { flex:1; padding:6px; border:none; border-radius:30px; font-size:12px; font-weight:600; cursor:pointer; }
+    .admin-card .actions button:active { transform:scale(0.93); }
+    .btn-edit { background:#f0f0f0; color:#333; }
+    .btn-del { background:#ff4d4d; color:white; }
+    .empty-admin { text-align:center; color:#bbb; padding:30px 0; grid-column:1/-1; }
+    .publish-area { display:flex; gap:10px; flex-wrap:wrap; }
+    .publish-area button { padding:12px 24px; border:none; border-radius:40px; font-weight:600; cursor:pointer; flex:1; min-width:120px; }
+    .publish-area button:active { transform:scale(0.95); }
+    .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:white; padding:12px 28px; border-radius:40px; font-size:14px; opacity:0; transition:0.3s; pointer-events:none; z-index:999; }
+    .toast.show { opacity:1; }
+    .info-text { font-size:13px; color:#888; margin-top:8px; }
+    .token-input { width:100%; padding:10px 16px; border:2px solid #eee; border-radius:14px; font-size:14px; margin-top:8px; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- Header -->
   <div class="header">
-    <div>
-      <h1>🔐 Admin Panel</h1>
-      <span class="badge">✏️ Edit Mode</span>
-    </div>
-    <a href="index.html">👀 Lihat Mading</a>
+    <div><h1>🔐 Admin</h1><span class="badge">✏️ Edit Mode</span></div>
+    <a href="index.html">👀 Lihat Galeri</a>
+  </div>
+
+  <!-- Token GitHub -->
+  <div class="section">
+    <h2>🔑 Setup GitHub</h2>
+    <input type="password" class="token-input" id="githubToken" placeholder="Masukkan GitHub Token (untuk publish)">
+    <p class="info-text">Token hanya disimpan di HP kamu. Dapatkan di GitHub Settings → Developer settings → Personal access tokens</p>
   </div>
 
   <!-- Whiteboard -->
   <div class="section">
-    <h2>✏️ Whiteboard (gambar bebas)</h2>
+    <h2>✏️ Whiteboard</h2>
     <div class="canvas-wrapper">
       <canvas id="whiteboardCanvas" width="600" height="450"></canvas>
     </div>
     <div class="canvas-tools">
-      <button class="btn-primary" id="saveDrawingBtn">💾 Simpan ke Gallery</button>
+      <button class="btn-primary" id="saveDrawingBtn">💾 Simpan</button>
       <button class="btn-danger" id="clearCanvasBtn">🗑️ Hapus</button>
       <button id="undoCanvasBtn">↩️ Undo</button>
     </div>
   </div>
 
-  <!-- Upload dengan Deskripsi -->
+  <!-- Upload -->
   <div class="section">
-    <h2>📤 Upload + Deskripsi</h2>
+    <h2>📤 Upload Karya</h2>
     <div class="upload-area">
       <input type="file" id="imageInput" accept="image/*">
       <div class="row">
         <input type="text" id="captionInput" placeholder="Judul karya...">
-        <textarea id="descInput" placeholder="Deskripsi / narasi cerita..."></textarea>
+        <textarea id="descInput" placeholder="Deskripsi / narasi..."></textarea>
       </div>
-      <button id="uploadBtn">➕ Tambahkan ke Mading</button>
+      <button id="uploadBtn">➕ Tambahkan</button>
     </div>
   </div>
 
@@ -295,16 +96,24 @@
     </div>
   </div>
 
-  <div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0;">
-    Data tersimpan di Local Storage HP kamu
+  <!-- Publish ke GitHub -->
+  <div class="section">
+    <h2>🚀 Publish ke GitHub</h2>
+    <div class="publish-area">
+      <button class="btn-success" id="publishBtn">📤 Publish ke GitHub</button>
+      <button class="btn-primary" id="loadFromGistBtn">📥 Muat dari GitHub</button>
+    </div>
+    <p class="info-text">💡 Publish = semua orang bisa lihat. Muat = ambil data terakhir dari GitHub.</p>
   </div>
 </div>
 
-<!-- Toast -->
 <div id="toast" class="toast">✨ Tersimpan!</div>
 
 <script>
-  // ========== DATA ==========
+  // ========== KONFIGURASI ==========
+  const GIST_ID = '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'; // Ganti dengan Gist ID kamu
+  const GIST_USER = 'yudisbulk-bot'; // Ganti dengan username GitHub kamu
+
   let galleryData = [];
   let drawingHistory = [];
   let isDrawing = false;
@@ -314,9 +123,17 @@
   const ctx = canvas.getContext('2d');
   const toast = document.getElementById('toast');
 
-  // ========== LOAD ==========
-  function loadData() {
-    const stored = localStorage.getItem('portfolioData');
+  // ========== TOAST ==========
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  // ========== LOAD DATA ==========
+  function loadLocalData() {
+    const stored = localStorage.getItem('galleryLocal');
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
@@ -328,60 +145,42 @@
             drawingHistory = [canvas.toDataURL()];
           };
           img.src = parsed.drawing;
-        } else {
-          drawingHistory = [canvas.toDataURL()];
         }
       } catch(e) {
         galleryData = [];
-        drawingHistory = [canvas.toDataURL()];
       }
     } else {
-      drawingHistory = [canvas.toDataURL()];
+      galleryData = [];
     }
     renderAdminGallery();
     updateCount();
   }
 
-  function saveData() {
+  function saveLocalData() {
     const payload = {
       gallery: galleryData,
       drawing: canvas.toDataURL()
     };
-    localStorage.setItem('portfolioData', JSON.stringify(payload));
-    showToast('💾 Data tersimpan!');
+    localStorage.setItem('galleryLocal', JSON.stringify(payload));
+    showToast('💾 Data tersimpan di HP!');
     updateCount();
-  }
-
-  // ========== TOAST ==========
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.classList.add('show');
-    clearTimeout(toast._timer);
-    toast._timer = setTimeout(() => toast.classList.remove('show'), 2000);
-  }
-
-  // ========== COUNT ==========
-  function updateCount() {
-    document.getElementById('countLabel').textContent = galleryData.length;
   }
 
   // ========== RENDER ADMIN GALLERY ==========
   function renderAdminGallery() {
     const container = document.getElementById('galleryAdminContainer');
-
     if (galleryData.length === 0) {
       container.innerHTML = `<div class="empty-admin">Belum ada karya</div>`;
       return;
     }
-
     let html = '';
     galleryData.forEach((item, index) => {
       html += `
         <div class="admin-card">
-          <img src="${item.src}" alt="${item.caption || 'Karya'}" loading="lazy">
+          <img src="${item.src}" alt="${item.caption}" loading="lazy">
           <div class="info">${item.caption || 'Karya'}</div>
           <div class="actions">
-            <button class="btn-edit" data-index="${index}">✏️ Edit</button>
+            <button class="btn-edit" data-index="${index}">✏️</button>
             <button class="btn-del" data-index="${index}">🗑️</button>
           </div>
         </div>
@@ -389,20 +188,18 @@
     });
     container.innerHTML = html;
 
-    // Event delete
     document.querySelectorAll('.btn-del').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const idx = parseInt(e.target.dataset.index);
-        if (confirm('Hapus karya ini?')) {
+        if (confirm('Hapus?')) {
           galleryData.splice(idx, 1);
           renderAdminGallery();
-          saveData();
+          saveLocalData();
           showToast('🗑️ Dihapus');
         }
       });
     });
 
-    // Event edit
     document.querySelectorAll('.btn-edit').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const idx = parseInt(e.target.dataset.index);
@@ -412,10 +209,14 @@
         if (newCaption !== null) item.caption = newCaption;
         if (newDesc !== null) item.description = newDesc;
         renderAdminGallery();
-        saveData();
+        saveLocalData();
         showToast('✅ Diperbarui');
       });
     });
+  }
+
+  function updateCount() {
+    document.getElementById('countLabel').textContent = galleryData.length;
   }
 
   // ========== WHITEBOARD ==========
@@ -432,10 +233,7 @@
       clientX = e.clientX;
       clientY = e.clientY;
     }
-    return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY
-    };
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
   }
 
   function startDraw(e) {
@@ -467,7 +265,7 @@
       isDrawing = false;
       drawingHistory.push(canvas.toDataURL());
       if (drawingHistory.length > 30) drawingHistory.shift();
-      saveData();
+      saveLocalData();
     }
   }
 
@@ -479,12 +277,11 @@
   canvas.addEventListener('touchmove', draw, { passive: false });
   canvas.addEventListener('touchend', endDraw, { passive: false });
 
-  // Canvas tools
   document.getElementById('clearCanvasBtn').addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawingHistory = [canvas.toDataURL()];
-    saveData();
-    showToast('🧹 Canvas dibersihkan');
+    saveLocalData();
+    showToast('🧹 Dibersihkan');
   });
 
   document.getElementById('undoCanvasBtn').addEventListener('click', () => {
@@ -495,7 +292,7 @@
       img.onload = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
-        saveData();
+        saveLocalData();
         showToast('↩️ Undo');
       };
       img.src = prev;
@@ -506,16 +303,16 @@
 
   document.getElementById('saveDrawingBtn').addEventListener('click', () => {
     const dataUrl = canvas.toDataURL();
-    const caption = prompt('Judul karya:', 'Gambar whiteboard');
-    const desc = prompt('Deskripsi / narasi:', '');
+    const caption = prompt('Judul:', 'Gambar whiteboard');
+    const desc = prompt('Deskripsi:', '');
     galleryData.push({
       src: dataUrl,
       caption: caption || 'Gambar whiteboard',
       description: desc || ''
     });
     renderAdminGallery();
-    saveData();
-    showToast('✅ Gambar ditambahkan ke mading!');
+    saveLocalData();
+    showToast('✅ Ditambahkan!');
   });
 
   // ========== UPLOAD ==========
@@ -525,16 +322,11 @@
     const description = document.getElementById('descInput').value.trim();
 
     if (!fileInput.files || fileInput.files.length === 0) {
-      showToast('⚠️ Pilih gambar dulu');
+      showToast('⚠️ Pilih gambar');
       return;
     }
 
     const file = fileInput.files[0];
-    if (!file.type.startsWith('image/')) {
-      showToast('⚠️ Bukan gambar');
-      return;
-    }
-
     const reader = new FileReader();
     reader.onload = (e) => {
       galleryData.push({
@@ -543,7 +335,7 @@
         description: description || ''
       });
       renderAdminGallery();
-      saveData();
+      saveLocalData();
       fileInput.value = '';
       document.getElementById('captionInput').value = '';
       document.getElementById('descInput').value = '';
@@ -552,8 +344,71 @@
     reader.readAsDataURL(file);
   });
 
+  // ========== PUBLISH KE GITHUB ==========
+  document.getElementById('publishBtn').addEventListener('click', async () => {
+    const token = document.getElementById('githubToken').value.trim();
+    if (!token) {
+      showToast('⚠️ Masukkan GitHub Token dulu');
+      return;
+    }
+
+    try {
+      showToast('⏳ Mengupload ke GitHub...');
+      
+      // Siapkan data
+      const data = { gallery: galleryData };
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+
+      // Update Gist
+      const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          files: {
+            'data.json': {
+              content: JSON.stringify(data, null, 2)
+            }
+          }
+        })
+      });
+
+      if (response.ok) {
+        showToast('✅ Berhasil publish ke GitHub! Semua orang bisa lihat.');
+      } else {
+        const error = await response.json();
+        showToast(`⚠️ Gagal: ${error.message || 'Cek token atau Gist ID'}`);
+      }
+    } catch (error) {
+      showToast('⚠️ Error: ' + error.message);
+    }
+  });
+
+  // ========== LOAD DARI GITHUB ==========
+  document.getElementById('loadFromGistBtn').addEventListener('click', async () => {
+    try {
+      showToast('⏳ Memuat dari GitHub...');
+      const response = await fetch(`https://api.github.com/gists/${GIST_ID}`);
+      const data = await response.json();
+      
+      if (data.files && data.files['data.json']) {
+        const content = JSON.parse(data.files['data.json'].content);
+        galleryData = content.gallery || [];
+        renderAdminGallery();
+        saveLocalData();
+        showToast(`✅ Berhasil memuat ${galleryData.length} karya!`);
+      } else {
+        showToast('⚠️ Tidak ada data di GitHub');
+      }
+    } catch (error) {
+      showToast('⚠️ Gagal memuat: ' + error.message);
+    }
+  });
+
   // ========== INIT ==========
-  loadData();
+  loadLocalData();
 </script>
 </body>
 </html>
