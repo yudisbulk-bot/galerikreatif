@@ -34,57 +34,56 @@
     .modal-close { display:block; width:100%; padding:14px; margin-top:16px; background:#1a1a1a; color:white; border:none; border-radius:40px; font-size:16px; font-weight:600; cursor:pointer; }
     .modal-close:active { transform:scale(0.97); }
 
-    /* ===== FITUR FOLLOW ===== */
-    .follow-container {
-      text-align: center;
-      margin: 20px 0 10px;
-      padding: 16px;
-      background: white;
-      border-radius: 24px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .follow-inner {
+    /* ===== TOMBOL FOLLOW IG + POPUP ===== */
+    .ig-container {
+      margin: 16px 0 10px;
       display: flex;
-      align-items: center;
       justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
     }
-    .follow-avatar {
+    .ig-btn {
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-    .follow-avatar span.icon {
-      font-size: 28px;
-    }
-    .follow-info {
-      text-align: left;
-    }
-    .follow-info .name {
-      font-weight: 700;
-      font-size: 16px;
-      color: #1a1a1a;
-    }
-    .follow-info .count {
-      font-size: 13px;
-      color: #888;
-    }
-    #followBtn {
-      padding: 8px 24px;
+      background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      color: white;
       border: none;
       border-radius: 40px;
+      padding: 10px 24px;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 15px;
       cursor: pointer;
-      transition: 0.2s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: transform 0.2s;
+    }
+    .ig-btn:active {
+      transform: scale(0.95);
+    }
+    .ig-btn span {
+      font-size: 20px;
+    }
+
+    /* Toast / Popup kecil bawah tengah */
+    .popup-bawah {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
       background: #1a1a1a;
       color: white;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 9999;
+      white-space: nowrap;
     }
-    #followBtn:active { transform: scale(0.95); }
-    #followBtn.following {
-      background: #34c759;
-      color: white;
+    .popup-bawah.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
 
     .footer { text-align:center; color:#ccc; font-size:13px; margin-top:40px; padding-bottom:10px; }
@@ -99,18 +98,11 @@
     <div class="admin-badge">👀 Mode Pengunjung</div>
   </div>
 
-  <!-- ===== FITUR FOLLOW ===== -->
-  <div class="follow-container">
-    <div class="follow-inner">
-      <div class="follow-avatar">
-        <span class="icon">🎨</span>
-        <div class="follow-info">
-          <div class="name">@yudisbulkdesain</div>
-          <div class="count" id="followerCountText">1200 Pengikut</div>
-        </div>
-      </div>
-      <button id="followBtn">+ Ikuti</button>
-    </div>
+  <!-- ===== TOMBOL FOLLOW INSTAGRAM ===== -->
+  <div class="ig-container">
+    <button class="ig-btn" id="igFollowBtn">
+      <span>📸</span> Ikuti @yudisbulkdesain
+    </button>
   </div>
 
   <div id="galleryContainer" class="gallery">
@@ -118,6 +110,9 @@
   </div>
   <div class="footer"><a href="admin.html">🔐 Mode Admin</a> • Data di HP kamu</div>
 </div>
+
+<!-- ===== POPUP BAWAH TENGAH ===== -->
+<div id="popupBawah" class="popup-bawah">❤️ Terima kasih sudah mengikuti!</div>
 
 <div class="modal-overlay" id="detailModal">
   <div class="modal-box">
@@ -132,7 +127,7 @@
 </div>
 
 <script>
-  // ========== DATA GALLERY (IndexedDB) ==========
+  // ========== INDEXEDDB ==========
   const DB_NAME = 'MadingDB';
   const STORE_NAME = 'karya';
 
@@ -220,72 +215,25 @@
     }
   });
 
-  // ========== FITUR FOLLOW (LOCALSTORAGE) ==========
-  const ACCOUNT_ID = 'yudisbulkdesain';
+  // ========== FITUR FOLLOW IG + POPUP BAWAH ==========
+  const igBtn = document.getElementById('igFollowBtn');
+  const popup = document.getElementById('popupBawah');
+  let popupTimer = null;
 
-  function getFollowData() {
-    const raw = localStorage.getItem('mading_follow_data');
-    if (raw) {
-      try {
-        return JSON.parse(raw);
-      } catch (e) {
-        return {};
-      }
-    }
-    return {};
-  }
+  igBtn.addEventListener('click', function() {
+    // 1. Buka Instagram
+    window.open('https://www.instagram.com/yudisbulkdesain', '_blank');
 
-  function saveFollowData(data) {
-    localStorage.setItem('mading_follow_data', JSON.stringify(data));
-  }
-
-  function checkFollowStatus() {
-    const data = getFollowData();
-    const isFollowing = data[ACCOUNT_ID] || false;
-    const btn = document.getElementById('followBtn');
-    const counter = document.getElementById('followerCountText');
-
-    let followerCount = 1200; // Angka awal followers
-
-    if (isFollowing) {
-      btn.textContent = '✔️ Mengikuti';
-      btn.classList.add('following');
-      followerCount += 1;
-    } else {
-      btn.textContent = '+ Ikuti';
-      btn.classList.remove('following');
-    }
-
-    counter.textContent = `${followerCount} Pengikut`;
-  }
-
-  document.getElementById('followBtn').addEventListener('click', function() {
-    const data = getFollowData();
-    const isFollowing = data[ACCOUNT_ID] || false;
-    const counter = document.getElementById('followerCountText');
-    let currentCount = parseInt(counter.textContent.replace(/[^0-9]/g, '')) || 1200;
-
-    if (isFollowing) {
-      // UNFOLLOW
-      delete data[ACCOUNT_ID];
-      this.textContent = '+ Ikuti';
-      this.classList.remove('following');
-      currentCount -= 1;
-    } else {
-      // FOLLOW
-      data[ACCOUNT_ID] = true;
-      this.textContent = '✔️ Mengikuti';
-      this.classList.add('following');
-      currentCount += 1;
-    }
-
-    saveFollowData(data);
-    counter.textContent = `${currentCount} Pengikut`;
+    // 2. Munculkan popup bawah
+    popup.classList.add('show');
+    clearTimeout(popupTimer);
+    popupTimer = setTimeout(() => {
+      popup.classList.remove('show');
+    }, 2500);
   });
 
   // ========== START ==========
   renderGallery();
-  checkFollowStatus();
   setInterval(renderGallery, 3000);
 </script>
 </body>
