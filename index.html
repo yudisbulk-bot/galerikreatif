@@ -12,14 +12,17 @@
     .header h1 { font-size:32px; font-weight:800; color:#1a1a1a; letter-spacing:-0.5px; }
     .header p { color:#888; font-size:15px; margin-top:4px; }
     .admin-badge { display:inline-block; background:#1a1a1a; color:white; padding:6px 16px; border-radius:40px; font-size:12px; font-weight:600; margin-top:8px; }
+    
     .gallery { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:16px; margin-top:20px; }
     .gallery-card { background:white; border-radius:20px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.06); cursor:pointer; transition:all 0.25s ease; border:2px solid transparent; position:relative; }
     .gallery-card:active { transform:scale(0.97); border-color:#1a1a1a; }
     .gallery-card img { width:100%; height:180px; object-fit:cover; display:block; background:#f0ede8; }
     .gallery-card .card-title { padding:12px 14px 10px; font-weight:700; font-size:15px; color:#1a1a1a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .gallery-card .card-badge { position:absolute; top:10px; right:10px; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); color:white; font-size:11px; padding:4px 12px; border-radius:30px; font-weight:500; }
+    
     .empty-state { text-align:center; padding:60px 20px; color:#bbb; grid-column:1 / -1; }
     .empty-state span { font-size:48px; display:block; margin-bottom:12px; }
+    
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(8px); display:none; justify-content:center; align-items:center; padding:20px; z-index:1000; }
     .modal-overlay.active { display:flex; }
     .modal-box { background:white; border-radius:28px; max-width:480px; width:100%; max-height:90vh; overflow-y:auto; padding:0; box-shadow:0 24px 64px rgba(0,0,0,0.2); }
@@ -30,6 +33,60 @@
     .modal-content .description { font-size:16px; line-height:1.6; color:#333; background:#f8f6f2; padding:14px 16px; border-radius:14px; margin-top:6px; white-space:pre-wrap; word-break:break-word; min-height:40px; }
     .modal-close { display:block; width:100%; padding:14px; margin-top:16px; background:#1a1a1a; color:white; border:none; border-radius:40px; font-size:16px; font-weight:600; cursor:pointer; }
     .modal-close:active { transform:scale(0.97); }
+
+    /* ===== FITUR FOLLOW ===== */
+    .follow-container {
+      text-align: center;
+      margin: 20px 0 10px;
+      padding: 16px;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .follow-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .follow-avatar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .follow-avatar span.icon {
+      font-size: 28px;
+    }
+    .follow-info {
+      text-align: left;
+    }
+    .follow-info .name {
+      font-weight: 700;
+      font-size: 16px;
+      color: #1a1a1a;
+    }
+    .follow-info .count {
+      font-size: 13px;
+      color: #888;
+    }
+    #followBtn {
+      padding: 8px 24px;
+      border: none;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.2s;
+      background: #1a1a1a;
+      color: white;
+    }
+    #followBtn:active { transform: scale(0.95); }
+    #followBtn.following {
+      background: #34c759;
+      color: white;
+    }
+
     .footer { text-align:center; color:#ccc; font-size:13px; margin-top:40px; padding-bottom:10px; }
     .footer a { color:#888; text-decoration:none; font-weight:600; }
   </style>
@@ -41,6 +98,21 @@
     <p>Klik karya untuk baca ceritanya</p>
     <div class="admin-badge">👀 Mode Pengunjung</div>
   </div>
+
+  <!-- ===== FITUR FOLLOW ===== -->
+  <div class="follow-container">
+    <div class="follow-inner">
+      <div class="follow-avatar">
+        <span class="icon">🎨</span>
+        <div class="follow-info">
+          <div class="name">@yudisbulkdesain</div>
+          <div class="count" id="followerCountText">1200 Pengikut</div>
+        </div>
+      </div>
+      <button id="followBtn">+ Ikuti</button>
+    </div>
+  </div>
+
   <div id="galleryContainer" class="gallery">
     <div class="empty-state"><span>🖼️</span>Belum ada karya<br><small style="color:#ddd;">Admin belum mengisi mading</small></div>
   </div>
@@ -60,10 +132,9 @@
 </div>
 
 <script>
-  // ========== INDEXED DB WRAPPER ==========
+  // ========== DATA GALLERY (IndexedDB) ==========
   const DB_NAME = 'MadingDB';
   const STORE_NAME = 'karya';
-  const MAX_BYTES = 500 * 1024 * 1024; // 500 MB
 
   function openDB() {
     return new Promise((resolve, reject) => {
@@ -86,7 +157,7 @@
       const tx = db.transaction(STORE_NAME, 'readonly');
       const store = tx.objectStore(STORE_NAME);
       const index = store.index('createdAt');
-      const request = index.openCursor(null, 'prev'); // descending
+      const request = index.openCursor(null, 'prev');
       const results = [];
       request.onsuccess = (e) => {
         const cursor = e.target.result;
@@ -101,89 +172,6 @@
     });
   }
 
-  async function addKarya(fileBlob, caption, description) {
-    const db = await openDB();
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    const item = {
-      blob: fileBlob,
-      caption: caption || 'Karya',
-      description: description || '',
-      createdAt: Date.now(),
-      size: fileBlob.size
-    };
-    store.add(item);
-    await new Promise((resolve, reject) => {
-      tx.oncomplete = resolve;
-      tx.onerror = reject;
-    });
-    await enforceStorageLimit();
-    return item;
-  }
-
-  async function deleteKarya(id) {
-    const db = await openDB();
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    store.delete(id);
-    await new Promise((resolve, reject) => {
-      tx.oncomplete = resolve;
-      tx.onerror = reject;
-    });
-  }
-
-  async function updateKarya(id, newCaption, newDescription) {
-    const db = await openDB();
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    const item = await new Promise((resolve, reject) => {
-      const req = store.get(id);
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-    if (item) {
-      item.caption = newCaption;
-      item.description = newDescription;
-      store.put(item);
-    }
-    await new Promise((resolve, reject) => {
-      tx.oncomplete = resolve;
-      tx.onerror = reject;
-    });
-  }
-
-  async function getTotalStorageSize() {
-    const all = await getAllKarya();
-    return all.reduce((acc, curr) => acc + (curr.size || 0), 0);
-  }
-
-  async function enforceStorageLimit() {
-    let total = await getTotalStorageSize();
-    if (total <= MAX_BYTES) return;
-
-    const all = await getAllKarya();
-    all.sort((a, b) => a.createdAt - b.createdAt); // oldest first
-
-    let toDelete = [];
-    let currentTotal = total;
-    for (let item of all) {
-      if (currentTotal <= MAX_BYTES) break;
-      toDelete.push(item.id);
-      currentTotal -= (item.size || 0);
-    }
-
-    const db = await openDB();
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    const store = tx.objectStore(STORE_NAME);
-    for (let id of toDelete) store.delete(id);
-    await new Promise((resolve, reject) => {
-      tx.oncomplete = resolve;
-      tx.onerror = reject;
-    });
-    console.log(`🧹 Dihapus ${toDelete.length} gambar tua (batas 500MB)`);
-  }
-
-  // ========== RENDER PUBLIK ==========
   async function renderGallery() {
     const container = document.getElementById('galleryContainer');
     const data = await getAllKarya();
@@ -232,9 +220,73 @@
     }
   });
 
+  // ========== FITUR FOLLOW (LOCALSTORAGE) ==========
+  const ACCOUNT_ID = 'yudisbulkdesain';
+
+  function getFollowData() {
+    const raw = localStorage.getItem('mading_follow_data');
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch (e) {
+        return {};
+      }
+    }
+    return {};
+  }
+
+  function saveFollowData(data) {
+    localStorage.setItem('mading_follow_data', JSON.stringify(data));
+  }
+
+  function checkFollowStatus() {
+    const data = getFollowData();
+    const isFollowing = data[ACCOUNT_ID] || false;
+    const btn = document.getElementById('followBtn');
+    const counter = document.getElementById('followerCountText');
+
+    let followerCount = 1200; // Angka awal followers
+
+    if (isFollowing) {
+      btn.textContent = '✔️ Mengikuti';
+      btn.classList.add('following');
+      followerCount += 1;
+    } else {
+      btn.textContent = '+ Ikuti';
+      btn.classList.remove('following');
+    }
+
+    counter.textContent = `${followerCount} Pengikut`;
+  }
+
+  document.getElementById('followBtn').addEventListener('click', function() {
+    const data = getFollowData();
+    const isFollowing = data[ACCOUNT_ID] || false;
+    const counter = document.getElementById('followerCountText');
+    let currentCount = parseInt(counter.textContent.replace(/[^0-9]/g, '')) || 1200;
+
+    if (isFollowing) {
+      // UNFOLLOW
+      delete data[ACCOUNT_ID];
+      this.textContent = '+ Ikuti';
+      this.classList.remove('following');
+      currentCount -= 1;
+    } else {
+      // FOLLOW
+      data[ACCOUNT_ID] = true;
+      this.textContent = '✔️ Mengikuti';
+      this.classList.add('following');
+      currentCount += 1;
+    }
+
+    saveFollowData(data);
+    counter.textContent = `${currentCount} Pengikut`;
+  });
+
   // ========== START ==========
   renderGallery();
-  setInterval(renderGallery, 3000); // auto refresh
+  checkFollowStatus();
+  setInterval(renderGallery, 3000);
 </script>
 </body>
 </html>

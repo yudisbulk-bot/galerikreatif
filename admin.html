@@ -22,7 +22,7 @@
     .btn-primary { background:#1a1a1a !important; color:white !important; }
     .btn-danger { background:#ff4d4d !important; color:white !important; }
     .upload-area { display:flex; flex-direction:column; gap:10px; }
-    .upload-area input[type="file"] { padding:12px; border:2px dashed #ddd; border-radius:16px; background:#fafafa; font-size:14px; color: #333; }
+    .upload-area input[type="file"] { padding:12px; border:2px dashed #ddd; border-radius:16px; background:#fafafa; font-size:14px; color:#333; }
     .upload-area .row { display:flex; gap:10px; flex-wrap:wrap; }
     .upload-area .row input, .upload-area .row textarea { flex:1; padding:12px 16px; border:2px solid #eee; border-radius:14px; font-size:14px; font-family:inherit; min-width:120px; }
     .upload-area .row textarea { min-height:60px; resize:vertical; }
@@ -41,7 +41,6 @@
     .toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#1a1a1a; color:white; padding:12px 28px; border-radius:40px; font-size:14px; font-weight:500; box-shadow:0 8px 24px rgba(0,0,0,0.2); opacity:0; transition:0.3s; pointer-events:none; z-index:999; white-space:nowrap; }
     .toast.show { opacity:1; }
 
-    /* ===== MODAL CANTIK (PUTIH, BERSIH, MODERN) ===== */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.7);
       backdrop-filter: blur(8px); display: none;
@@ -59,36 +58,22 @@
       from { transform: scale(0.9); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
-    .modal-box h3 {
-      font-size: 20px; font-weight: 700; color: #1a1a1a;
-      margin-bottom: 6px;
-    }
-    .modal-box p.sub {
-      font-size: 14px; color: #888; margin-bottom: 20px;
-    }
-    .modal-box label {
-      display: block; font-size: 13px; font-weight: 600;
-      color: #333; margin-bottom: 4px; margin-top: 14px;
-    }
+    .modal-box h3 { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+    .modal-box p.sub { font-size: 14px; color: #888; margin-bottom: 20px; }
+    .modal-box label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 4px; margin-top: 14px; }
     .modal-box input, .modal-box textarea {
       width: 100%; padding: 12px 14px;
       border: 2px solid #eee; border-radius: 14px;
       font-size: 15px; font-family: inherit;
       transition: border 0.2s; background: #fafafa;
-      color: #1a1a1a; /* Pastikan teks hitam, bukan abu */
+      color: #1a1a1a;
     }
     .modal-box input:focus, .modal-box textarea:focus {
       border-color: #1a1a1a; outline: none; background: #fff;
     }
     .modal-box textarea { min-height: 90px; resize: vertical; }
-    .modal-actions {
-      display: flex; gap: 10px; margin-top: 24px;
-    }
-    .modal-actions button {
-      flex: 1; padding: 12px; border: none; border-radius: 40px;
-      font-size: 15px; font-weight: 600; cursor: pointer;
-      transition: 0.2s;
-    }
+    .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+    .modal-actions button { flex: 1; padding: 12px; border: none; border-radius: 40px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .modal-actions button:active { transform: scale(0.95); }
     .btn-modal-cancel { background: #f0f0f0; color: #333; }
     .btn-modal-save { background: #1a1a1a; color: white; }
@@ -135,18 +120,14 @@
 
 <div id="toast" class="toast">✨ Tersimpan!</div>
 
-<!-- ===== MODAL PUTIH BERSIH ===== -->
 <div class="modal-overlay" id="detailModal">
   <div class="modal-box">
     <h3 id="modalHeader">📝 Detail Karya</h3>
     <p class="sub">Lengkapi informasi karya agar lebih bermakna.</p>
-    
     <label for="modalCaption">Judul Karya</label>
     <input type="text" id="modalCaption" placeholder="Contoh: Senja di Pelabuhan" value="">
-    
     <label for="modalDesc">Deskripsi / Cerita</label>
     <textarea id="modalDesc" placeholder="Tuliskan cerita atau inspirasi di balik karya ini..."></textarea>
-    
     <div class="modal-actions">
       <button class="btn-modal-cancel" id="modalCancelBtn">Batal</button>
       <button class="btn-modal-save" id="modalSaveBtn">Simpan</button>
@@ -155,7 +136,7 @@
 </div>
 
 <script>
-  // ========== INDEXED DB WRAPPER ==========
+  // ========== INDEXED DB ==========
   const DB_NAME = 'MadingDB';
   const STORE_NAME = 'karya';
   const MAX_BYTES = 500 * 1024 * 1024;
@@ -280,7 +261,7 @@
     document.getElementById('storageInfo').textContent = (total / 1024 / 1024).toFixed(1) + ' MB';
   }
 
-  // ========== CANVAS WHITEBOARD ==========
+  // ========== CANVAS ==========
   const canvas = document.getElementById('whiteboardCanvas');
   const ctx = canvas.getContext('2d');
   const toast = document.getElementById('toast');
@@ -361,7 +342,6 @@
     if (!pendingModalAction) return;
     const finalCaption = modalCaption.value.trim() || 'Karya';
     const finalDesc = modalDesc.value.trim();
-
     const { action, editingId } = pendingModalAction;
 
     if (action === 'save_drawing') {
@@ -390,16 +370,13 @@
         showToast('✅ Diperbarui');
       } catch (err) { showToast('⚠️ Gagal update: ' + err.message); }
     }
-
     closeModal();
   });
 
-  // ========== SAVE WHITEBOARD ==========
   document.getElementById('saveDrawingBtn').addEventListener('click', () => {
     openModal('Gambar whiteboard', '', 'save_drawing');
   });
 
-  // ========== UPLOAD FILE ==========
   document.getElementById('uploadBtn').addEventListener('click', async () => {
     const fileInput = document.getElementById('imageInput');
     if (!fileInput.files || fileInput.files.length === 0) {
@@ -418,7 +395,7 @@
     document.getElementById('descInput').value = '';
   });
 
-  // ========== RENDER ADMIN GALLERY ==========
+  // ========== RENDER ADMIN ==========
   async function renderAdminGallery() {
     const container = document.getElementById('galleryAdminContainer');
     const data = await getAllKarya();
@@ -464,7 +441,6 @@
     });
   }
 
-  // ========== INIT ==========
   renderAdminGallery();
   setInterval(renderAdminGallery, 3000);
 </script>
